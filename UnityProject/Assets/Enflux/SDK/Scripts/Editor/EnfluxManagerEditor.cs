@@ -89,7 +89,7 @@ namespace Assets.Enflux.SDK.Scripts.Editor
                     GUI.enabled = isPlaying && !_manager.IsShirtActive;
                     if (GUILayout.Button("Calibrate Shirt"))
                     {
-                        _manager.Connect(DeviceType.Shirt);
+                        _manager.Calibrate(DeviceType.Shirt);
                     }
 
                     GUI.enabled = isPlaying && !_manager.ArePantsActive;
