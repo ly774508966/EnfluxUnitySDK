@@ -9,7 +9,6 @@ using Enflux.SDK.Core;
 using Enflux.SDK.Core.DataTypes;
 using Enflux.SDK.Extensions;
 using UnityEngine;
-using DeviceType = Enflux.SDK.Core.DataTypes.DeviceType;
 
 namespace Enflux.SDK.Recording
 {
@@ -97,10 +96,10 @@ namespace Enflux.SDK.Recording
             return true;
         }
 
-        private void ApplyAngles(DeviceType device, ref byte[] rawFrame)
+        private void ApplyAngles(EnfluxDevice device, ref byte[] rawFrame)
         {
             var angles = RPY.ParseDataForOrientationAngles(rawFrame);
-            if (device == DeviceType.Shirt)
+            if (device == EnfluxDevice.Shirt)
             {
                 AbsoluteAngles.SetUpperBodyAngles(
                     new UnityEngine.Vector3(angles.Center.Roll, angles.Center.Pitch, angles.Center.Yaw)*Mathf.Rad2Deg,
@@ -113,7 +112,7 @@ namespace Enflux.SDK.Recording
                     new UnityEngine.Vector3(angles.RightLower.Roll, angles.RightLower.Pitch, angles.RightLower.Yaw)*
                     Mathf.Rad2Deg);
             }
-            else if (device == DeviceType.Pants)
+            else if (device == EnfluxDevice.Pants)
             {
                 AbsoluteAngles.SetLowerBodyAngles(
                     new UnityEngine.Vector3(angles.Center.Roll, angles.Center.Pitch, angles.Center.Yaw)*Mathf.Rad2Deg,
@@ -144,7 +143,7 @@ namespace Enflux.SDK.Recording
                 var lastPantsFrame = new byte[20];
                 var startTime = Time.time;
                 _isPlaying = true;
-                var initializedDevices = DeviceType.None;
+                var initializedDevices = EnfluxDevice.None;
 
                 // Read file header
                 if (fileStream.CanRead &&
@@ -179,13 +178,13 @@ namespace Enflux.SDK.Recording
                     {
                         // We have read samples up to the point of the running time.
                         // Set the angle rotations
-                        if ((initializedDevices & DeviceType.Shirt) == DeviceType.Shirt)
+                        if ((initializedDevices & EnfluxDevice.Shirt) == EnfluxDevice.Shirt)
                         {
-                            ApplyAngles(DeviceType.Shirt, ref lastShirtFrame);
+                            ApplyAngles(EnfluxDevice.Shirt, ref lastShirtFrame);
                         }
-                        if ((initializedDevices & DeviceType.Pants) == DeviceType.Pants)
+                        if ((initializedDevices & EnfluxDevice.Pants) == EnfluxDevice.Pants)
                         {
-                            ApplyAngles(DeviceType.Pants, ref lastPantsFrame);
+                            ApplyAngles(EnfluxDevice.Pants, ref lastPantsFrame);
                         }
 
                         // Let game catch up to the timestamp if the framerate is faster than the sample rate.
@@ -195,19 +194,19 @@ namespace Enflux.SDK.Recording
                         }
 
                     }
-                    var dev_type = (DeviceType) fileStream.ReadByte();
-                    if (dev_type == DeviceType.Shirt)
+                    var dev_type = (EnfluxDevice) fileStream.ReadByte();
+                    if (dev_type == EnfluxDevice.Shirt)
                     {
-                        initializedDevices |= DeviceType.Shirt;
+                        initializedDevices |= EnfluxDevice.Shirt;
                         if (fileStream.Read(lastShirtFrame, 0, 20) != 20)
                         {
                             IsPlaying = false;
                             yield return true;
                         }
                     }
-                    else if (dev_type == DeviceType.Pants)
+                    else if (dev_type == EnfluxDevice.Pants)
                     {
-                        initializedDevices |= DeviceType.Pants;
+                        initializedDevices |= EnfluxDevice.Pants;
                         if (fileStream.Read(lastPantsFrame, 0, 20) != 20)
                         {
                             IsPlaying = false;

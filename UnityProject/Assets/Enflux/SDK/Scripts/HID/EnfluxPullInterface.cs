@@ -21,8 +21,8 @@ namespace Enflux.SDK.HID
         public event Action<InputCommands> ReceivedShirtStatus;
         public event Action<InputCommands> ReceivedPantsStatus;
 
-        public Quaternion[] PantsRotations = new Quaternion[5];
-        public Quaternion[] ShirtRotations = new Quaternion[5];
+        public ShortQuaternion[] PantsRotations = new ShortQuaternion[5];
+        public ShortQuaternion[] ShirtRotations = new ShortQuaternion[5];
 
 
         // Temporary variables, will be removed in future release!
@@ -30,7 +30,7 @@ namespace Enflux.SDK.HID
         public static byte[] ShirtRPY = new byte[20];
 
 
-        public void StartStreaming(DeviceType deviceType)
+        public void StartStreaming(EnfluxDevice deviceType)
         {
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             EnfluxNativePull.StartStreamingPull(deviceType);
@@ -44,7 +44,7 @@ namespace Enflux.SDK.HID
 #endif
         }
 
-        public void StartCalibration(DeviceType deviceType)
+        public void StartCalibration(EnfluxDevice deviceType)
         {
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             EnfluxNativePull.StartCalibrationPull(deviceType);
@@ -55,9 +55,9 @@ namespace Enflux.SDK.HID
         {
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             // Check for a new shirt command
-            if (HasNewCommand(DeviceType.Shirt))
+            if (HasNewCommand(EnfluxDevice.Shirt))
             {
-                var command = PopCommand(DeviceType.Shirt);
+                var command = PopCommand(EnfluxDevice.Shirt);
                 var handler = ReceivedShirtStatus;
                 if (handler != null)
                 {
@@ -73,9 +73,9 @@ namespace Enflux.SDK.HID
                 }
             }
             // Check for a new pants command
-            if (HasNewCommand(DeviceType.Pants))
+            if (HasNewCommand(EnfluxDevice.Pants))
             {
-                var command = PopCommand(DeviceType.Pants);
+                var command = PopCommand(EnfluxDevice.Pants);
                 var handler = ReceivedPantsStatus;
                 if (handler != null)
                 {
@@ -94,17 +94,17 @@ namespace Enflux.SDK.HID
             if (ShirtStatus == StreamingStatus.Connected)
             {
                 //LoadRotations(DeviceType.Shirt, ShirtRotations);
-                RPY.LoadRotations(DeviceType.Shirt, ShirtRPY);
+                RPY.LoadRotations(EnfluxDevice.Shirt, ShirtRPY);
             }
             if (PantsStatus == StreamingStatus.Connected)
             {
                 //LoadRotations(DeviceType.Pants, PantsRotations);
-                RPY.LoadRotations(DeviceType.Pants, PantsRPY);
+                RPY.LoadRotations(EnfluxDevice.Pants, PantsRPY);
             }
 #endif
         }
 
-        private bool HasNewCommand(DeviceType deviceType)
+        private bool HasNewCommand(EnfluxDevice deviceType)
         {
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             return Convert.ToBoolean(EnfluxNativePull.HasNewCommand(deviceType));
@@ -113,7 +113,7 @@ namespace Enflux.SDK.HID
 #endif
         }
 
-        private InputCommands PopCommand(DeviceType deviceType)
+        private InputCommands PopCommand(EnfluxDevice deviceType)
         {
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             return (InputCommands) EnfluxNativePull.PopCommand(deviceType);

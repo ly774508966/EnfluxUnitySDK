@@ -2,9 +2,9 @@
 // By downloading, accessing or using this SDK, you signify that you have read, understood and agree to the terms and conditions of the End User License Agreement located at: https://www.getenflux.com/pages/sdk-eula
 
 using Enflux.SDK.Core;
+using Enflux.SDK.Core.DataTypes;
 using UnityEditor;
 using UnityEngine;
-using DeviceType = Enflux.SDK.Core.DataTypes.DeviceType;
 
 namespace Assets.Enflux.SDK.Scripts.Editor
 {
@@ -34,21 +34,21 @@ namespace Assets.Enflux.SDK.Scripts.Editor
                 {
                     if (GUILayout.Button("Connect Shirt"))
                     {
-                        _manager.Connect(DeviceType.Shirt);
+                        _manager.Connect(EnfluxDevice.Shirt);
                     }
                 }
                 if (!_manager.ArePantsActive)
                 {
                     if (GUILayout.Button("Connect Pants"))
                     {
-                        _manager.Connect(DeviceType.Pants);
+                        _manager.Connect(EnfluxDevice.Pants);
                     }
                 }
                 if (!_manager.IsShirtActive && !_manager.ArePantsActive)
                 {
                     if (GUILayout.Button("Connect Shirt and Pants"))
                     {
-                        _manager.Connect(DeviceType.All);
+                        _manager.Connect(EnfluxDevice.All);
                     }
                 }
 
@@ -89,13 +89,13 @@ namespace Assets.Enflux.SDK.Scripts.Editor
                     GUI.enabled = isPlaying && !_manager.IsShirtActive;
                     if (GUILayout.Button("Calibrate Shirt"))
                     {
-                        _manager.Calibrate(DeviceType.Shirt);
+                        _manager.Calibrate(EnfluxDevice.Shirt);
                     }
 
                     GUI.enabled = isPlaying && !_manager.ArePantsActive;
                     if (GUILayout.Button("Calibrate Pants"))
                     {
-                        _manager.Calibrate(DeviceType.Pants);
+                        _manager.Calibrate(EnfluxDevice.Pants);
                     }
                 }
                 GUILayout.EndHorizontal();

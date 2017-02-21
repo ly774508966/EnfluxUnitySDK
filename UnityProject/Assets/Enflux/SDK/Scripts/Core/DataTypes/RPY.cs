@@ -10,7 +10,7 @@ namespace Enflux.SDK.Core.DataTypes
     public class RPY
     {
         [DllImport("EnfluxHID", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int LoadRotations(DeviceType device,
+        public static extern int LoadRotations(EnfluxDevice device,
             [Out] [MarshalAs(UnmanagedType.LPArray, SizeConst = 20)] byte[] outData);
 
         public float Roll { get; private set; }

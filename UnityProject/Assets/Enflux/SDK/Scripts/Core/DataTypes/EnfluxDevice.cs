@@ -5,7 +5,7 @@ using System;
 namespace Enflux.SDK.Core.DataTypes
 {
     [Flags]
-    public enum DeviceType
+    public enum EnfluxDevice
     {
         None = 0,
         Shirt = 1,

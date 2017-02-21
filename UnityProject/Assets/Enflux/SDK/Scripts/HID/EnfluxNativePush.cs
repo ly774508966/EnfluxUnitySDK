@@ -11,13 +11,13 @@ namespace Enflux.SDK.HID
 
 
         // This callback updates the module rotations.
-        public delegate void DataStreamCallback([In] DeviceType device, [MarshalAs(UnmanagedType.LPArray, SizeConst = 5)] [In] Quaternion[] data);
+        public delegate void DataStreamCallback([In] EnfluxDevice device, [MarshalAs(UnmanagedType.LPArray, SizeConst = 5)] [In] ShortQuaternion[] data);
 
         // This callback updates the device status with input commands.
-        public delegate void StatusCallback([In] DeviceType device, InputCommands status);
+        public delegate void StatusCallback([In] EnfluxDevice device, InputCommands status);
 
         // This callback updates the device status with raw data.
-        public delegate void RawDataCallback([In] DeviceType device, int sensor, ref RawData data);
+        public delegate void RawDataCallback([In] EnfluxDevice device, int sensor, ref RawData data);
 
         public struct Callbacks
         {
@@ -33,19 +33,19 @@ namespace Enflux.SDK.HID
 
         // Sets the connection interval on the module.
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void SetInterval(DeviceType devices, ushort intervalMs);
+        public static extern void SetInterval(EnfluxDevice devices, ushort intervalMs);
 
         // Starts streaming rotation data from the device. The callbacks will be called with updates.
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void StartStreamingThread(DeviceType devices, Callbacks callbacks);
+        public static extern void StartStreamingThread(EnfluxDevice devices, Callbacks callbacks);
 
         // Starts streaming raw sensor data from the device. The callbacks will be called with updates.
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void StartRawDataThread(DeviceType devices, RawCallbacks callbacks);
+        public static extern void StartRawDataThread(EnfluxDevice devices, RawCallbacks callbacks);
 
         // Starts calibrating the device. The callbacks will be called with updates.
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void StartCalibrationThread(DeviceType devices, Callbacks callbacks);
+        public static extern void StartCalibrationThread(EnfluxDevice devices, Callbacks callbacks);
 
         // Stop streaming and receiving commands from a module.
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]

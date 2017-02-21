@@ -28,8 +28,8 @@ namespace Enflux.SDK.Recording
         // Duration of the recording in milliseconds
         public uint Duration;
 
-        public Vector3 ShirtBaseOrientation;
-        public Vector3 PantsBaseOrientation;
+        public ShortVector3 ShirtBaseOrientation;
+        public ShortVector3 PantsBaseOrientation;
 
 
         public static AnimationHeader InitializeFromArray(byte[] data)

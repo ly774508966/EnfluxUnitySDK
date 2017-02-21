@@ -17,9 +17,9 @@ namespace Enflux.SDK.Recording
         public static extern int EndRecording();
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int SetShirtBaseOrientation(Vector3 orientation);
+        public static extern int SetShirtBaseOrientation(ShortVector3 orientation);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int SetPantsBaseOrientation(Vector3 orientation);
+        public static extern int SetPantsBaseOrientation(ShortVector3 orientation);
     }
 }
