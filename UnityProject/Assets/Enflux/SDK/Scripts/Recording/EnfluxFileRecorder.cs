@@ -6,7 +6,6 @@ using Enflux.Attributes;
 using Enflux.SDK.Core;
 using Enflux.SDK.Extensions;
 using UnityEngine;
-using Vector3 = UnityEngine.Vector3;
 
 namespace Enflux.SDK.Recording
 {

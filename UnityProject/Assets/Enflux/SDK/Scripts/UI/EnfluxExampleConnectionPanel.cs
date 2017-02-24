@@ -5,7 +5,7 @@ using Enflux.SDK.Extensions;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using DeviceType = Enflux.SDK.Core.DataTypes.DeviceType;
+using Enflux.SDK.Core.DataTypes;
 
 namespace Enflux.SDK.UI
 {
@@ -173,12 +173,12 @@ namespace Enflux.SDK.UI
 
         private void ConnectShirtButtonOnClick()
         {
-            _enfluxManager.Connect(DeviceType.Shirt);
+            _enfluxManager.Connect(EnfluxDevice.Shirt);
         }
 
         private void ConnectPantsButtonOnClick()
         {
-            _enfluxManager.Connect(DeviceType.Pants);
+            _enfluxManager.Connect(EnfluxDevice.Pants);
         }
 
         private void DisconnectButtonOnClick()
@@ -188,12 +188,12 @@ namespace Enflux.SDK.UI
 
         private void CalibrateShirtButtonOnClick()
         {
-            _enfluxManager.Calibrate(DeviceType.Shirt);
+            _enfluxManager.Calibrate(EnfluxDevice.Shirt);
         }
 
         private void CalibratePantsButtonOnClick()
         {
-            _enfluxManager.Calibrate(DeviceType.Pants);
+            _enfluxManager.Calibrate(EnfluxDevice.Pants);
         }
 
         private void ResetOrientationButtonOnClick()

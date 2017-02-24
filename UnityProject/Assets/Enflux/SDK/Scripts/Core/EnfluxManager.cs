@@ -4,8 +4,6 @@ using Enflux.Attributes;
 using Enflux.SDK.Core.DataTypes;
 using Enflux.SDK.HID;
 using UnityEngine;
-using DeviceType = Enflux.SDK.Core.DataTypes.DeviceType;
-using Quaternion = Enflux.SDK.Core.DataTypes.Quaternion;
 
 namespace Enflux.SDK.Core
 {
@@ -69,10 +67,10 @@ namespace Enflux.SDK.Core
 
         public class DataEvent : IQueuedEvent
         {
-            public Quaternion[] Data;
+            public SByteQuaternion[] Data;
             public bool IsPants;
 
-            public DataEvent(Quaternion[] data, bool isPants)
+            public DataEvent(SByteQuaternion[] data, bool isPants)
             {
                 Data = data;
                 IsPants = isPants;
@@ -85,7 +83,7 @@ namespace Enflux.SDK.Core
 
         public class DeviceStatusEvent : IQueuedEvent
         {
-            public DeviceStatusEvent(DeviceType device, int status)
+            public DeviceStatusEvent(EnfluxDevice device, int status)
             {
             }
 
@@ -235,9 +233,9 @@ namespace Enflux.SDK.Core
             }
         }
 
-        public void Connect(DeviceType device)
+        public void Connect(EnfluxDevice device)
         {
-            if (device == DeviceType.None)
+            if (device == EnfluxDevice.None)
             {
                 Debug.LogError(name + ": Device is 'None'!");
                 return;
@@ -248,25 +246,25 @@ namespace Enflux.SDK.Core
                 return;
             }
             // If should connect to both but we're already connected to one device, still connect to the other.
-            if (device == DeviceType.All && IsShirtActive)
+            if (device == EnfluxDevice.All && IsShirtActive)
             {
                 Debug.LogError(name + ": Device 'Shirt' is already connected!");
-                device = DeviceType.Pants;
+                device = EnfluxDevice.Pants;
             }
-            else if (device == DeviceType.All && ArePantsActive)
+            else if (device == EnfluxDevice.All && ArePantsActive)
             {
                 Debug.LogError(name + ": Device 'Pants' is already connected!");
-                device = DeviceType.Shirt;
+                device = EnfluxDevice.Shirt;
             }
-            else if (device == DeviceType.Shirt && ArePantsActive)
+            else if (device == EnfluxDevice.Shirt && ArePantsActive)
             {
                 Disconnect();
-                device = DeviceType.All;
+                device = EnfluxDevice.All;
             }
-            else if (device == DeviceType.Pants && IsShirtActive)
+            else if (device == EnfluxDevice.Pants && IsShirtActive)
             {
                 Disconnect();
-                device = DeviceType.All;
+                device = EnfluxDevice.All;
             }
 
             Debug.Log(name + ": Connecting '" + device + "'...");
@@ -295,25 +293,25 @@ namespace Enflux.SDK.Core
             PantsState = DeviceState.Disconnected;
         }
 
-        public bool IsActive(DeviceType device)
+        public bool IsActive(EnfluxDevice device)
         {
             switch (device)
             {
-                case DeviceType.Shirt:
+                case EnfluxDevice.Shirt:
                     return IsShirtActive;
 
-                case DeviceType.Pants:
+                case EnfluxDevice.Pants:
                     return ArePantsActive;
 
-                case DeviceType.All:
+                case EnfluxDevice.All:
                     return IsShirtActive && ArePantsActive;
             }
             return false;
         }
 
-        public void Calibrate(DeviceType device)
+        public void Calibrate(EnfluxDevice device)
         {
-            if (device == DeviceType.None)
+            if (device == EnfluxDevice.None)
             {
                 Debug.LogError(name + ": Device is 'None'!");
                 return;

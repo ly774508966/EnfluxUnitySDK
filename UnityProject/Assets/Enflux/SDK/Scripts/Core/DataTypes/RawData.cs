@@ -10,9 +10,9 @@ namespace Enflux.SDK.Core.DataTypes
     public struct RawData
     {
         public short Timestamp { get; private set; }
-        public Vector3 Accelerometer { get; private set; }
-        public Vector3 Gyroscope { get; private set; }
-        public Vector3 Magnetometer { get; private set; }
+        public ShortVector3 Accelerometer { get; private set; }
+        public ShortVector3 Gyroscope { get; private set; }
+        public ShortVector3 Magnetometer { get; private set; }
 
         public int Sensor
         {

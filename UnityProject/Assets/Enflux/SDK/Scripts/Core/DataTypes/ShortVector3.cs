@@ -7,16 +7,22 @@ namespace Enflux.SDK.Core.DataTypes
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Quaternion
+    public struct ShortVector3
     {
-        public sbyte W;
-        public sbyte X;
-        public sbyte Y;
-        public sbyte Z;
+        public short X;
+        public short Y;
+        public short Z;
 
         public override string ToString()
         {
-            return string.Format("({0}, {1}, {2}, {3})", W, X, Y, Z);
+            return string.Format("({0}, {1}, {2})", X, Y, Z);
+        }
+
+        public ShortVector3(short x, short y, short z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
         }
     }
 }

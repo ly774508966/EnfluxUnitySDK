@@ -6,9 +6,9 @@ namespace Enflux.SDK.Extensions
 {
     public static class Vector3Extensions
     {
-        public static Core.DataTypes.Vector3 ToEnfluxVector3(this Vector3 v)
+        public static Core.DataTypes.ShortVector3 ToEnfluxVector3(this Vector3 v)
         {
-            return new Core.DataTypes.Vector3
+            return new Core.DataTypes.ShortVector3
             {
                 X = (short) Mathf.RoundToInt(v.x),
                 Y = (short) Mathf.RoundToInt(v.y),
@@ -16,7 +16,7 @@ namespace Enflux.SDK.Extensions
             };
         }
 
-        public static Vector3 ToUnityVector3(this Core.DataTypes.Vector3 v)
+        public static Vector3 ToUnityVector3(this Core.DataTypes.ShortVector3 v)
         {
             return new Vector3(v.X, v.Y, v.Z);
         }

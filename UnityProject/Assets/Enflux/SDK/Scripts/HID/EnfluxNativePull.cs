@@ -15,27 +15,27 @@ namespace Enflux.SDK.HID
         {
             // Temporary method, will be removed in future release!
             [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-            public static extern int LoadRotations(DeviceType device,
+            public static extern int LoadRotations(EnfluxDevice device,
                 [Out] [MarshalAs(UnmanagedType.LPArray, SizeConst = 20)] byte[] outData);
         }
         #endregion
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void StartStreamingPull(DeviceType device);
+        public static extern void StartStreamingPull(EnfluxDevice device);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void StartCalibrationPull(DeviceType device);
+        public static extern void StartCalibrationPull(EnfluxDevice device);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int HasNewCommand(DeviceType device);
+        public static extern int HasNewCommand(EnfluxDevice device);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int PopCommand(DeviceType device);
+        public static extern int PopCommand(EnfluxDevice device);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int LoadRotations(DeviceType device,
-            [Out] [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct, SizeConst = 5)] Quaternion[]
+        public static extern int LoadRotations(EnfluxDevice device,
+            [Out] [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct, SizeConst = 5)] SByteQuaternion[]
                 outData);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
