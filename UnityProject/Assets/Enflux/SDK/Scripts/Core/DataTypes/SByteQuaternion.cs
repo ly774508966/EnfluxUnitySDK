@@ -7,7 +7,7 @@ namespace Enflux.SDK.Core.DataTypes
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct ShortQuaternion
+    public struct SByteQuaternion
     {
         public sbyte W;
         public sbyte X;

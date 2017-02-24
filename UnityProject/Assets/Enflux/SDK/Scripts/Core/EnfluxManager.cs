@@ -67,10 +67,10 @@ namespace Enflux.SDK.Core
 
         public class DataEvent : IQueuedEvent
         {
-            public ShortQuaternion[] Data;
+            public SByteQuaternion[] Data;
             public bool IsPants;
 
-            public DataEvent(ShortQuaternion[] data, bool isPants)
+            public DataEvent(SByteQuaternion[] data, bool isPants)
             {
                 Data = data;
                 IsPants = isPants;

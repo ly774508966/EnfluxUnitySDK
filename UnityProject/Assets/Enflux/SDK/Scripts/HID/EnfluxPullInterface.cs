@@ -21,8 +21,8 @@ namespace Enflux.SDK.HID
         public event Action<InputCommands> ReceivedShirtStatus;
         public event Action<InputCommands> ReceivedPantsStatus;
 
-        public ShortQuaternion[] PantsRotations = new ShortQuaternion[5];
-        public ShortQuaternion[] ShirtRotations = new ShortQuaternion[5];
+        public SByteQuaternion[] PantsRotations = new SByteQuaternion[5];
+        public SByteQuaternion[] ShirtRotations = new SByteQuaternion[5];
 
 
         // Temporary variables, will be removed in future release!

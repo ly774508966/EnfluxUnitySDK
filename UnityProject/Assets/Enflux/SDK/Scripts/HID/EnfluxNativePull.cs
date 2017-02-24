@@ -35,7 +35,7 @@ namespace Enflux.SDK.HID
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
         public static extern int LoadRotations(EnfluxDevice device,
-            [Out] [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct, SizeConst = 5)] ShortQuaternion[]
+            [Out] [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct, SizeConst = 5)] SByteQuaternion[]
                 outData);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]

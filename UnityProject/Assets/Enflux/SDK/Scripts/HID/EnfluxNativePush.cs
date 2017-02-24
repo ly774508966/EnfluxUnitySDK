@@ -11,7 +11,7 @@ namespace Enflux.SDK.HID
 
 
         // This callback updates the module rotations.
-        public delegate void DataStreamCallback([In] EnfluxDevice device, [MarshalAs(UnmanagedType.LPArray, SizeConst = 5)] [In] ShortQuaternion[] data);
+        public delegate void DataStreamCallback([In] EnfluxDevice device, [MarshalAs(UnmanagedType.LPArray, SizeConst = 5)] [In] SByteQuaternion[] data);
 
         // This callback updates the device status with input commands.
         public delegate void StatusCallback([In] EnfluxDevice device, InputCommands status);
