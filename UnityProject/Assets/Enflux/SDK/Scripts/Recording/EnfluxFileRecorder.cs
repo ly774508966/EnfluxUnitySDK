@@ -6,6 +6,7 @@ using Enflux.Attributes;
 using Enflux.SDK.Core;
 using Enflux.SDK.Extensions;
 using UnityEngine;
+using System;
 
 namespace Enflux.SDK.Recording
 {
@@ -14,6 +15,9 @@ namespace Enflux.SDK.Recording
         public string Filename = "";
         [SerializeField, Readonly] private bool _isRecording;
         [SerializeField] private EnfluxSuitStream _sourceSuitStream;
+
+        public event Action<RecordingResult> RecordingError;
+
 
         private string DefaultFilename
         {
@@ -73,60 +77,98 @@ namespace Enflux.SDK.Recording
                 if (!_isRecording)
                 {
                     var error = StartRecording(Filename);
-                    if (error != 0)
+                    // Close any persisting file (can happen in editor)
+                    if (error == RecordingResult.FileAlreadyOpen)
                     {
-                        Debug.LogError(name + " - Unable to start recording. Error code: " + error);
-                        IsRecording = false;
+                        EndRecording();
+                        error = StartRecording(Filename);
+                    }
+
+                    if (error == RecordingResult.Success)
+                    {
+                        _isRecording = true;
+                    }
+                    else
+                    {
+                        Debug.LogError(name + " - Unable to start recording. Error: " + error);
+                        _isRecording = false;
+                        if (RecordingError != null)
+                        {
+                            RecordingError(error);
+                        }
                         return;
-                    }                 
+                    }
                 }
                 else
                 {
-                    EndRecording();
+                    RecordingResult error = EndRecording();
+                    if (error != RecordingResult.Success)
+                    {
+                        Debug.LogError(name + " - Unable to end recording. Error: " + error);
+                        if (RecordingError != null)
+                        {
+                            RecordingError(error);
+                        }
+                    }
+                    _isRecording = value;
                 }
-                _isRecording = value;
             }
         }   
 
-        private int StartRecording(string filename)
+        private RecordingResult StartRecording(string filename)
         {
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             return EnfluxNativeFileRecorder.StartRecording(filename);
 #else
-            return 0;
+            return RecordingResult.Success;
 #endif
         }
 
-        private int EndRecording()
+        private RecordingResult EndRecording()
         {
             if (_sourceSuitStream != null)
             {
-                // TODO: Check error codes
-                SetShirtBaseOrientation(_sourceSuitStream.ShirtBaseOrientation);
-                SetPantsBaseOrientation(_sourceSuitStream.PantsBaseOrientation);
+                RecordingResult shirtError = SetShirtBaseOrientation(_sourceSuitStream.ShirtBaseOrientation);
+                RecordingResult pantsError = SetPantsBaseOrientation(_sourceSuitStream.PantsBaseOrientation);
+                if(shirtError != RecordingResult.Success)
+                {
+                    Debug.LogError(name + " - Unable to set shirt base. Error: " + shirtError);
+                    if (RecordingError != null)
+                    {
+                        RecordingError(shirtError);
+                    }
+                }
+                if (pantsError != RecordingResult.Success)
+                {
+                    Debug.LogError(name + " - Unable to set pants base. Error: " + pantsError);
+                    if (RecordingError != null)
+                    {
+                        RecordingError(pantsError);
+                    }
+                }
             }
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             return EnfluxNativeFileRecorder.EndRecording();
 #else
-            return 0;
+            return RecordingResult.Success;
 #endif
         }
 
-        private int SetShirtBaseOrientation(Vector3 orientation)
+        private RecordingResult SetShirtBaseOrientation(Vector3 orientation)
         {
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             return EnfluxNativeFileRecorder.SetShirtBaseOrientation(orientation.ToEnfluxVector3());
 #else
-            return 0;
+            return RecordingResult.Success;
 #endif
         }
 
-        private int SetPantsBaseOrientation(Vector3 orientation)
+        private RecordingResult SetPantsBaseOrientation(Vector3 orientation)
         {
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             return EnfluxNativeFileRecorder.SetPantsBaseOrientation(orientation.ToEnfluxVector3());
 #else
-            return 0;
+            return RecordingResult.Success;
 #endif
         }
     }

@@ -11,15 +11,15 @@ namespace Enflux.SDK.Recording
         private const string DllName = "EnfluxHID";
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int StartRecording(string filename);
+        public static extern RecordingResult StartRecording(string filename);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int EndRecording();
+        public static extern RecordingResult EndRecording();
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int SetShirtBaseOrientation(ShortVector3 orientation);
+        public static extern RecordingResult SetShirtBaseOrientation(ShortVector3 orientation);
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int SetPantsBaseOrientation(ShortVector3 orientation);
+        public static extern RecordingResult SetPantsBaseOrientation(ShortVector3 orientation);
     }
 }

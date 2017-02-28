@@ -21,7 +21,8 @@ namespace Enflux.SDK.Recording
         private const float SecondsToMilliseconds = 1000.0f;
 
         private AnimationHeader _header;
-
+        
+        public event Action<PlaybackResult> PlaybackError;
 
         private string DefaultFilename
         {
@@ -102,28 +103,20 @@ namespace Enflux.SDK.Recording
             if (device == EnfluxDevice.Shirt)
             {
                 AbsoluteAngles.SetUpperBodyAngles(
-                    new UnityEngine.Vector3(angles.Center.Roll, angles.Center.Pitch, angles.Center.Yaw)*Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.LeftUpper.Roll, angles.LeftUpper.Pitch, angles.LeftUpper.Yaw)*
-                    Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.LeftLower.Roll, angles.LeftLower.Pitch, angles.LeftLower.Yaw)*
-                    Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.RightUpper.Roll, angles.RightUpper.Pitch, angles.RightUpper.Yaw)*
-                    Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.RightLower.Roll, angles.RightLower.Pitch, angles.RightLower.Yaw)*
-                    Mathf.Rad2Deg);
+                    new Vector3(angles.Center.Roll, angles.Center.Pitch, angles.Center.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.LeftUpper.Roll, angles.LeftUpper.Pitch, angles.LeftUpper.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.LeftLower.Roll, angles.LeftLower.Pitch, angles.LeftLower.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.RightUpper.Roll, angles.RightUpper.Pitch, angles.RightUpper.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.RightLower.Roll, angles.RightLower.Pitch, angles.RightLower.Yaw) * Mathf.Rad2Deg);
             }
             else if (device == EnfluxDevice.Pants)
             {
                 AbsoluteAngles.SetLowerBodyAngles(
-                    new UnityEngine.Vector3(angles.Center.Roll, angles.Center.Pitch, angles.Center.Yaw)*Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.LeftUpper.Roll, angles.LeftUpper.Pitch, angles.LeftUpper.Yaw)*
-                    Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.LeftLower.Roll, angles.LeftLower.Pitch, angles.LeftLower.Yaw)*
-                    Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.RightUpper.Roll, angles.RightUpper.Pitch, angles.RightUpper.Yaw)*
-                    Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.RightLower.Roll, angles.RightLower.Pitch, angles.RightLower.Yaw)*
-                    Mathf.Rad2Deg);
+                    new Vector3(angles.Center.Roll, angles.Center.Pitch, angles.Center.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.LeftUpper.Roll, angles.LeftUpper.Pitch, angles.LeftUpper.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.LeftLower.Roll, angles.LeftLower.Pitch, angles.LeftLower.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.RightUpper.Roll, angles.RightUpper.Pitch, angles.RightUpper.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.RightLower.Roll, angles.RightLower.Pitch, angles.RightLower.Yaw) * Mathf.Rad2Deg);
             }
         }
 
@@ -132,6 +125,10 @@ namespace Enflux.SDK.Recording
             if (!File.Exists(Filename))
             {
                 Debug.LogError(name + ": Error, file path doesn't exist: '" + Filename + "'!");
+                if (PlaybackError != null)
+                {
+                    PlaybackError(PlaybackResult.FileDoesNotExist);
+                }
                 IsPlaying = false;
                 yield break;
             }
@@ -155,12 +152,20 @@ namespace Enflux.SDK.Recording
                 else
                 {
                     Debug.Log("Error reading the file header for: '" + Filename + "'");
+                    if(PlaybackError != null)
+                    {
+                        PlaybackError(PlaybackResult.CannotParseHeader);
+                    }
                     IsPlaying = false;
                     yield break;
                 }
                 if (!ValidateHeader())
                 {
                     Debug.LogError(name + ": Error, incorrect file header: '" + Filename + "'!");
+                    if (PlaybackError != null)
+                    {
+                        PlaybackError(PlaybackResult.UnsupportedVersion);
+                    }
                     IsPlaying = false;
                     yield break;
                 }
@@ -174,7 +179,7 @@ namespace Enflux.SDK.Recording
                         IsPlaying = false;
                     }
                     var latestTimestamp = BitConverter.ToUInt32(rawTimestamp, 0);
-                    if (latestTimestamp > (Time.time - startTime)*SecondsToMilliseconds)
+                    if (latestTimestamp > (Time.time - startTime) * SecondsToMilliseconds)
                     {
                         // We have read samples up to the point of the running time.
                         // Set the angle rotations
@@ -188,7 +193,7 @@ namespace Enflux.SDK.Recording
                         }
 
                         // Let game catch up to the timestamp if the framerate is faster than the sample rate.
-                        while (latestTimestamp > (Time.time - startTime)*SecondsToMilliseconds)
+                        while (latestTimestamp > (Time.time - startTime) * SecondsToMilliseconds)
                         {
                             yield return null;
                         }
