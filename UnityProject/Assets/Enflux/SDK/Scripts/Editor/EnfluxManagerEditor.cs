@@ -3,10 +3,11 @@
 
 using Enflux.SDK.Core;
 using Enflux.SDK.Core.DataTypes;
+using Enflux.SDK.Utils;
 using UnityEditor;
 using UnityEngine;
 
-namespace Assets.Enflux.SDK.Scripts.Editor
+namespace Enflux.SDK.Editor
 {
 
     [CustomEditor(typeof(EnfluxManager))]
@@ -15,21 +16,28 @@ namespace Assets.Enflux.SDK.Scripts.Editor
     {
         private EnfluxManager _manager;
 
+        private void OnEnable()
+        {
+            _manager = (EnfluxManager) target;
+        }
 
         public override void OnInspectorGUI()
         {
-            base.OnInspectorGUI();
-            _manager = (EnfluxManager) target;
-
-            var isPlaying = Application.isPlaying;
-            GUI.enabled = isPlaying;
-
-            EditorGUILayout.Space();
+            // Connection
+            EditorGUILayout.BeginVertical(EnfluxEditorUtils.GuiStyles.Box);
             EditorGUILayout.LabelField("Connection", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
 
-            // Connect/disconnect shirt or pants
-            GUILayout.BeginHorizontal();
+            using (new EditorGUI.DisabledScope(!this.IsGuiEnabled()))
             {
+                using (new EditorGUI.DisabledScope(true))
+                {
+                    EditorGUILayout.EnumPopup("Shirt State", _manager.ShirtState);
+                    EditorGUILayout.EnumPopup("Pants State", _manager.PantsState);
+                }
+                // Connect/disconnect shirt or pants
+                GUILayout.BeginHorizontal();
+                EnfluxEditorUtils.SetEnfluxNormalButtonTheme();
                 if (!_manager.IsShirtActive)
                 {
                     if (GUILayout.Button("Connect Shirt"))
@@ -51,8 +59,6 @@ namespace Assets.Enflux.SDK.Scripts.Editor
                         _manager.Connect(EnfluxDevice.All);
                     }
                 }
-
-                GUI.contentColor = Color.yellow;
                 if (_manager.IsShirtActive && !_manager.ArePantsActive)
                 {
                     if (GUILayout.Button("Disconnect Shirt"))
@@ -74,51 +80,67 @@ namespace Assets.Enflux.SDK.Scripts.Editor
                         _manager.Disconnect();
                     }
                 }
+                EnfluxEditorUtils.SetDefaultTheme();
+                GUILayout.EndHorizontal();
             }
-            GUILayout.EndHorizontal();
-       
-            EditorGUILayout.Space();
-            GUI.contentColor = Color.white;
-            EditorGUILayout.LabelField("Calibration", EditorStyles.boldLabel);
 
-            // Calibrate shirt or pants
-            GUILayout.BeginVertical();
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Calibration", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+
+            using (new EditorGUI.DisabledScope(!this.IsGuiEnabled()))
             {
+                // Calibrate shirt or pants
                 GUILayout.BeginHorizontal();
+                EnfluxEditorUtils.SetEnfluxNormalButtonTheme();
+                using (new EditorGUI.DisabledScope(_manager.IsShirtActive))
                 {
-                    GUI.enabled = isPlaying && !_manager.IsShirtActive;
                     if (GUILayout.Button("Calibrate Shirt"))
                     {
                         _manager.Calibrate(EnfluxDevice.Shirt);
                     }
-
-                    GUI.enabled = isPlaying && !_manager.ArePantsActive;
+                }
+                using (new EditorGUI.DisabledScope(_manager.ArePantsActive))
+                {
                     if (GUILayout.Button("Calibrate Pants"))
                     {
                         _manager.Calibrate(EnfluxDevice.Pants);
                     }
                 }
+                EnfluxEditorUtils.SetDefaultTheme();
                 GUILayout.EndHorizontal();
             }
-            GUILayout.EndVertical();
 
             EditorGUILayout.Space();
-            GUI.contentColor = Color.white;
-            GUI.enabled = isPlaying;
             EditorGUILayout.LabelField("Alignment", EditorStyles.boldLabel);
-            // Align shirt + pants
-            GUILayout.BeginVertical();
+            EditorGUILayout.Space();
+
+            EnfluxEditorUtils.SetEnfluxNormalButtonTheme();
+            using (new EditorGUI.DisabledScope(!this.IsGuiEnabled()))
             {
-                GUILayout.BeginHorizontal();
+                // Align shirt + pants
+                using (new EditorGUI.DisabledScope(!_manager.IsAnyDeviceActive))
                 {
-                    GUI.enabled = isPlaying && _manager.IsAnyDeviceActive;
                     if (GUILayout.Button("Reset Orientation"))
                     {
                         _manager.ResetFullBodyBaseOrientation();
                     }
                 }
-                GUILayout.EndHorizontal();
             }
+            EnfluxEditorUtils.SetDefaultTheme();
+            GUILayout.EndVertical();
+
+            // Bluetooth
+            EditorGUILayout.BeginVertical(EnfluxEditorUtils.GuiStyles.Box);
+            EditorGUILayout.LabelField("Bluetooth", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+
+            EnfluxEditorUtils.SetEnfluxNormalButtonTheme();
+            if (GUILayout.Button("Open Bluetooth Manager"))
+            {
+                BluetoothUtils.LaunchBluetoothManager();
+            }
+            EnfluxEditorUtils.SetDefaultTheme();
             GUILayout.EndVertical();
         }
     }

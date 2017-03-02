@@ -3,6 +3,7 @@
 using System;
 using System.Runtime.InteropServices;
 using Enflux.SDK.Core.DataTypes;
+using Enflux.SDK.Recording.DataTypes;
 
 namespace Enflux.SDK.Recording
 {

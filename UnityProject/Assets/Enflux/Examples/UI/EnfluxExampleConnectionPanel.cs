@@ -1,13 +1,15 @@
 ﻿// Copyright (c) 2017 Enflux Inc.
 // By downloading, accessing or using this SDK, you signify that you have read, understood and agree to the terms and conditions of the End User License Agreement located at: https://www.getenflux.com/pages/sdk-eula
-using Enflux.SDK.Core;
-using Enflux.SDK.Extensions;
+
 using System.Collections;
+using Enflux.SDK.Core;
+using Enflux.SDK.Core.DataTypes;
+using Enflux.SDK.Extensions;
+using Enflux.SDK.Utils;
 using UnityEngine;
 using UnityEngine.UI;
-using Enflux.SDK.Core.DataTypes;
 
-namespace Enflux.SDK.UI
+namespace Enflux.Examples.UI
 {
     public class EnfluxExampleConnectionPanel : MonoBehaviour
     {
@@ -24,6 +26,7 @@ namespace Enflux.SDK.UI
         [SerializeField] private Button _calibrateShirtButton;
         [SerializeField] private Button _calibratePantsButton;
         [SerializeField] private Button _resetOrientationButton;
+        [SerializeField] private Button _openBluetoothManagerButton;
         [SerializeField] private Text _shirtStateText;
         [SerializeField] private Text _pantsStateText;
         [SerializeField] private Text _resetOrientationText;
@@ -42,6 +45,7 @@ namespace Enflux.SDK.UI
             }
         }
 
+
         private void Reset()
         {
             _enfluxManager = FindObjectOfType<EnfluxManager>();
@@ -57,6 +61,7 @@ namespace Enflux.SDK.UI
             _calibrateShirtButton = gameObject.FindChildComponent<Button>("Button_CalibrateShirt");
             _calibratePantsButton = gameObject.FindChildComponent<Button>("Button_CalibratePants");
             _resetOrientationButton = gameObject.FindChildComponent<Button>("Button_ResetOrientation");
+            _openBluetoothManagerButton = gameObject.FindChildComponent<Button>("Button_OpenBluetoothManager");
             _shirtStateText = gameObject.FindChildComponent<Text>("Text_ShirtState");
             _pantsStateText = gameObject.FindChildComponent<Text>("Text_PantsState");
             _resetOrientationText = gameObject.FindChildComponent<Text>("Text_ResetOrientation");
@@ -106,6 +111,7 @@ namespace Enflux.SDK.UI
             _calibrateShirtButton.onClick.AddListener(CalibrateShirtButtonOnClick);
             _calibratePantsButton.onClick.AddListener(CalibratePantsButtonOnClick);
             _resetOrientationButton.onClick.AddListener(ResetOrientationButtonOnClick);
+            _openBluetoothManagerButton.onClick.AddListener(OpenBluetoothManagerButtonOnClick);
         }
 
         private void UnsubscribeFromEvents()
@@ -125,6 +131,7 @@ namespace Enflux.SDK.UI
             _calibrateShirtButton.onClick.RemoveListener(CalibrateShirtButtonOnClick);
             _calibratePantsButton.onClick.RemoveListener(CalibratePantsButtonOnClick);
             _resetOrientationButton.onClick.RemoveListener(ResetOrientationButtonOnClick);
+            _openBluetoothManagerButton.onClick.RemoveListener(OpenBluetoothManagerButtonOnClick);
         }
 
         private void EnfluxManagerOnShirtStateChanged(StateChange<DeviceState> stateChange)
@@ -199,6 +206,11 @@ namespace Enflux.SDK.UI
         private void ResetOrientationButtonOnClick()
         {
             DoResetOrientationAnimation();
+        }
+
+        private void OpenBluetoothManagerButtonOnClick()
+        {
+            BluetoothUtils.LaunchBluetoothManager();
         }
 
         private void UpdateUi()

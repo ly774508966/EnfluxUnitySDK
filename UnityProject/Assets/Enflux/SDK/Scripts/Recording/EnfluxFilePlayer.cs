@@ -8,6 +8,7 @@ using Enflux.Attributes;
 using Enflux.SDK.Core;
 using Enflux.SDK.Core.DataTypes;
 using Enflux.SDK.Extensions;
+using Enflux.SDK.Recording.DataTypes;
 using UnityEngine;
 
 namespace Enflux.SDK.Recording
@@ -21,7 +22,7 @@ namespace Enflux.SDK.Recording
         private const float SecondsToMilliseconds = 1000.0f;
 
         private AnimationHeader _header;
-        
+
         public event Action<PlaybackResult> PlaybackError;
 
         private string DefaultFilename
@@ -134,7 +135,7 @@ namespace Enflux.SDK.Recording
             }
             using (var fileStream = File.OpenRead(Filename))
             {
-                var rawHeader = new byte[Marshal.SizeOf(typeof (AnimationHeader))];
+                var rawHeader = new byte[Marshal.SizeOf(typeof(AnimationHeader))];
                 var rawTimestamp = new byte[4];
                 var lastShirtFrame = new byte[20];
                 var lastPantsFrame = new byte[20];
@@ -144,15 +145,15 @@ namespace Enflux.SDK.Recording
 
                 // Read file header
                 if (fileStream.CanRead &&
-                    fileStream.Read(rawHeader, 0, Marshal.SizeOf(typeof (AnimationHeader))) ==
-                    Marshal.SizeOf(typeof (AnimationHeader)))
+                    fileStream.Read(rawHeader, 0, Marshal.SizeOf(typeof(AnimationHeader))) ==
+                    Marshal.SizeOf(typeof(AnimationHeader)))
                 {
-                    _header = AnimationHeader.InitializeFromArray(rawHeader);     
+                    _header = AnimationHeader.InitializeFromArray(rawHeader);
                 }
                 else
                 {
                     Debug.Log("Error reading the file header for: '" + Filename + "'");
-                    if(PlaybackError != null)
+                    if (PlaybackError != null)
                     {
                         PlaybackError(PlaybackResult.CannotParseHeader);
                     }

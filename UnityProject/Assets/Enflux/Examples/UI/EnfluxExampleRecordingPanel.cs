@@ -1,14 +1,14 @@
 ﻿// Copyright (c) 2017 Enflux Inc.
 // By downloading, accessing or using this SDK, you signify that you have read, understood and agree to the terms and conditions of the End User License Agreement located at: https://www.getenflux.com/pages/sdk-eula
-using System;
+
 using System.Collections;
-using Enflux.SDK.Core;
 using Enflux.SDK.Extensions;
 using Enflux.SDK.Recording;
+using Enflux.SDK.Recording.DataTypes;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Enflux.SDK.UI
+namespace Enflux.Examples.UI
 {
     public class EnfluxExampleRecordingPanel : MonoBehaviour
     {
@@ -21,6 +21,7 @@ namespace Enflux.SDK.UI
         [SerializeField] private Button _startPlaybackButton;
         [SerializeField] private Button _stopPlaybackButton;
         [SerializeField] private Text _errorText;
+
 
         private void Reset()
         {
@@ -68,7 +69,7 @@ namespace Enflux.SDK.UI
             _stopRecordingButton.onClick.RemoveListener(StopRecordingButtonOnClick);
             _startPlaybackButton.onClick.RemoveListener(StartPlaybackButtonOnClick);
             _stopPlaybackButton.onClick.RemoveListener(StopPlaybackButtonOnClick);
-            _filenameInputField.onEndEdit.AddListener(FilenameInputFieldOnEndEdit);
+            _filenameInputField.onEndEdit.RemoveListener(FilenameInputFieldOnEndEdit);
         }
 
         private IEnumerator Start()
@@ -94,7 +95,7 @@ namespace Enflux.SDK.UI
             _startRecordingButton.interactable = _fileRecorder != null;
             _stopRecordingButton.interactable = _fileRecorder != null;
             _startPlaybackButton.interactable = _filePlayer != null;
-            _stopRecordingButton.interactable = _filePlayer != null;
+            _stopPlaybackButton.interactable = _filePlayer != null;
         }
 
         private void StartRecordingButtonOnClick()

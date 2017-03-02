@@ -7,6 +7,7 @@ using Enflux.SDK.Core;
 using Enflux.SDK.Extensions;
 using UnityEngine;
 using System;
+using Enflux.SDK.Recording.DataTypes;
 
 namespace Enflux.SDK.Recording
 {
@@ -91,7 +92,7 @@ namespace Enflux.SDK.Recording
                     else
                     {
                         Debug.LogError(name + " - Unable to start recording. Error: " + error);
-                        _isRecording = false;
+                        IsRecording = false;
                         if (RecordingError != null)
                         {
                             RecordingError(error);

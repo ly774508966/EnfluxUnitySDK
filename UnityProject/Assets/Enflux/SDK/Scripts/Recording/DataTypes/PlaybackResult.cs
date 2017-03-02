@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Enflux.SDK.Recording
+﻿namespace Enflux.SDK.Recording.DataTypes
 {
     public enum PlaybackResult
     {
