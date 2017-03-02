@@ -6,7 +6,7 @@ using Enflux.SDK.Core.DataTypes;
 using UnityEditor;
 using UnityEngine;
 
-namespace Assets.Enflux.SDK.Scripts.Editor
+namespace Enflux.SDK.Editor
 {
 
     [CustomEditor(typeof(EnfluxManager))]

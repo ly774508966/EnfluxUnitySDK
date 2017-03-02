@@ -75,7 +75,7 @@ namespace Enflux.SDK.Recording
                     var error = StartRecording(Filename);
                     if (error != 0)
                     {
-                        Debug.LogError(name + " - Unable to start recording. Error code: " + error);
+                        Debug.LogError(name + " - Unable to start recording. Type code: " + error);
                         IsRecording = false;
                         return;
                     }                 

@@ -102,28 +102,20 @@ namespace Enflux.SDK.Recording
             if (device == EnfluxDevice.Shirt)
             {
                 AbsoluteAngles.SetUpperBodyAngles(
-                    new UnityEngine.Vector3(angles.Center.Roll, angles.Center.Pitch, angles.Center.Yaw)*Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.LeftUpper.Roll, angles.LeftUpper.Pitch, angles.LeftUpper.Yaw)*
-                    Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.LeftLower.Roll, angles.LeftLower.Pitch, angles.LeftLower.Yaw)*
-                    Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.RightUpper.Roll, angles.RightUpper.Pitch, angles.RightUpper.Yaw)*
-                    Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.RightLower.Roll, angles.RightLower.Pitch, angles.RightLower.Yaw)*
-                    Mathf.Rad2Deg);
+                    new Vector3(angles.Center.Roll, angles.Center.Pitch, angles.Center.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.LeftUpper.Roll, angles.LeftUpper.Pitch, angles.LeftUpper.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.LeftLower.Roll, angles.LeftLower.Pitch, angles.LeftLower.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.RightUpper.Roll, angles.RightUpper.Pitch, angles.RightUpper.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.RightLower.Roll, angles.RightLower.Pitch, angles.RightLower.Yaw) * Mathf.Rad2Deg);
             }
             else if (device == EnfluxDevice.Pants)
             {
                 AbsoluteAngles.SetLowerBodyAngles(
-                    new UnityEngine.Vector3(angles.Center.Roll, angles.Center.Pitch, angles.Center.Yaw)*Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.LeftUpper.Roll, angles.LeftUpper.Pitch, angles.LeftUpper.Yaw)*
-                    Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.LeftLower.Roll, angles.LeftLower.Pitch, angles.LeftLower.Yaw)*
-                    Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.RightUpper.Roll, angles.RightUpper.Pitch, angles.RightUpper.Yaw)*
-                    Mathf.Rad2Deg,
-                    new UnityEngine.Vector3(angles.RightLower.Roll, angles.RightLower.Pitch, angles.RightLower.Yaw)*
-                    Mathf.Rad2Deg);
+                    new Vector3(angles.Center.Roll, angles.Center.Pitch, angles.Center.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.LeftUpper.Roll, angles.LeftUpper.Pitch, angles.LeftUpper.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.LeftLower.Roll, angles.LeftLower.Pitch, angles.LeftLower.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.RightUpper.Roll, angles.RightUpper.Pitch, angles.RightUpper.Yaw) * Mathf.Rad2Deg,
+                    new Vector3(angles.RightLower.Roll, angles.RightLower.Pitch, angles.RightLower.Yaw) * Mathf.Rad2Deg);
             }
         }
 
@@ -131,7 +123,7 @@ namespace Enflux.SDK.Recording
         {
             if (!File.Exists(Filename))
             {
-                Debug.LogError(name + ": Error, file path doesn't exist: '" + Filename + "'!");
+                Debug.LogError(name + ": Type, file path doesn't exist: '" + Filename + "'!");
                 IsPlaying = false;
                 yield break;
             }
@@ -154,13 +146,13 @@ namespace Enflux.SDK.Recording
                 }
                 else
                 {
-                    Debug.Log("Error reading the file header for: '" + Filename + "'");
+                    Debug.Log("Type reading the file header for: '" + Filename + "'");
                     IsPlaying = false;
                     yield break;
                 }
                 if (!ValidateHeader())
                 {
-                    Debug.LogError(name + ": Error, incorrect file header: '" + Filename + "'!");
+                    Debug.LogError(name + ": Type, incorrect file header: '" + Filename + "'!");
                     IsPlaying = false;
                     yield break;
                 }
