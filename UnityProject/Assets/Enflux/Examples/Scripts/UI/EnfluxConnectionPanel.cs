@@ -11,7 +11,7 @@ using UnityEngine.UI;
 
 namespace Enflux.Examples.UI
 {
-    public class EnfluxExampleConnectionPanel : MonoBehaviour
+    public class EnfluxConnectionPanel : MonoBehaviour
     {
         [SerializeField] private EnfluxManager _enfluxManager;
 

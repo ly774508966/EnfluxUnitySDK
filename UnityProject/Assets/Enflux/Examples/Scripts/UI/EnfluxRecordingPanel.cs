@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace Enflux.Examples.UI
 {
-    public class EnfluxExampleRecordingPanel : MonoBehaviour
+    public class EnfluxRecordingPanel : MonoBehaviour
     {
         [SerializeField] private EnfluxFileRecorder _fileRecorder;
         [SerializeField] private EnfluxFilePlayer _filePlayer;
