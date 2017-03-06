@@ -1,7 +1,5 @@
 ﻿// Copyright (c) 2017 Enflux Inc.
 // By downloading, accessing or using this SDK, you signify that you have read, understood and agree to the terms and conditions of the End User License Agreement located at: https://www.getenflux.com/pages/sdk-eula
-
-using System.IO;
 using Enflux.Attributes;
 using Enflux.SDK.Core;
 using Enflux.SDK.Extensions;
@@ -17,7 +15,7 @@ namespace Enflux.SDK.Recording
         [SerializeField, Readonly] private bool _isRecording;
         [SerializeField] private EnfluxSuitStream _sourceSuitStream;
 
-        public event Action<RecordingResult> RecordingError;
+        public event Action<Notification<RecordingResult>> RecordingReceivedError;
 
 
         private string DefaultFilename
@@ -36,7 +34,7 @@ namespace Enflux.SDK.Recording
 
             if (_sourceSuitStream == null)
             {
-                Debug.LogError(name + ": SourceSuitStream is not assigned and no EnfluxSuitStream instance is in the scene!");
+                Debug.LogError(name + ", SourceSuitStream is not assigned and no EnfluxSuitStream instance is in the scene!");
             }
         }
 
@@ -91,30 +89,23 @@ namespace Enflux.SDK.Recording
                     }
                     else
                     {
-                        Debug.LogError(name + " - Unable to start recording. Error: " + error);
+                        var errorMessage = "Unable to start recording.";
                         IsRecording = false;
-                        if (RecordingError != null)
-                        {
-                            RecordingError(error);
-                        }
-                        return;
+                        RaiseRecordingResultEvent(error, errorMessage);
                     }
                 }
                 else
                 {
-                    RecordingResult error = EndRecording();
-                    if (error != RecordingResult.Success)
+                    var result = EndRecording();
+                    if (result != RecordingResult.Success)
                     {
-                        Debug.LogError(name + " - Unable to end recording. Error: " + error);
-                        if (RecordingError != null)
-                        {
-                            RecordingError(error);
-                        }
+                        var errorMessage = "Unable to end recording.";
+                        RaiseRecordingResultEvent(result, errorMessage);
                     }
                     _isRecording = value;
                 }
             }
-        }   
+        }
 
         private RecordingResult StartRecording(string filename)
         {
@@ -129,23 +120,17 @@ namespace Enflux.SDK.Recording
         {
             if (_sourceSuitStream != null)
             {
-                RecordingResult shirtError = SetShirtBaseOrientation(_sourceSuitStream.ShirtBaseOrientation);
-                RecordingResult pantsError = SetPantsBaseOrientation(_sourceSuitStream.PantsBaseOrientation);
-                if(shirtError != RecordingResult.Success)
+                var shirtError = SetShirtBaseOrientation(_sourceSuitStream.ShirtBaseOrientation);
+                var pantsError = SetPantsBaseOrientation(_sourceSuitStream.PantsBaseOrientation);
+                if (shirtError != RecordingResult.Success)
                 {
-                    Debug.LogError(name + " - Unable to set shirt base. Error: " + shirtError);
-                    if (RecordingError != null)
-                    {
-                        RecordingError(shirtError);
-                    }
+                    var errorMessage = "Unable to set shirt base orientation.";
+                    RaiseRecordingResultEvent(shirtError, errorMessage);
                 }
                 if (pantsError != RecordingResult.Success)
                 {
-                    Debug.LogError(name + " - Unable to set pants base. Error: " + pantsError);
-                    if (RecordingError != null)
-                    {
-                        RecordingError(pantsError);
-                    }
+                    var errorMessage = "Unable to set pants base orientation.";
+                    RaiseRecordingResultEvent(pantsError, errorMessage);
                 }
             }
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
@@ -171,6 +156,16 @@ namespace Enflux.SDK.Recording
 #else
             return RecordingResult.Success;
 #endif
+        }
+
+        private void RaiseRecordingResultEvent(RecordingResult result, string errorMessage)
+        {
+            var handler = RecordingReceivedError;
+            if (handler != null)
+            {
+                handler(new Notification<RecordingResult>(result, errorMessage));
+            }
+            Debug.LogError(string.Format("{0}, recording error {1}: {2}", name, result, errorMessage));
         }
     }
 }

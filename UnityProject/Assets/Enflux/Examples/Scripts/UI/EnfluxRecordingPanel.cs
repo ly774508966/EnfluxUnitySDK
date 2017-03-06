@@ -2,6 +2,7 @@
 // By downloading, accessing or using this SDK, you signify that you have read, understood and agree to the terms and conditions of the End User License Agreement located at: https://www.getenflux.com/pages/sdk-eula
 
 using System.Collections;
+using Enflux.SDK.Core;
 using Enflux.SDK.Extensions;
 using Enflux.SDK.Recording;
 using Enflux.SDK.Recording.DataTypes;
@@ -26,34 +27,24 @@ namespace Enflux.Examples.UI
         private void Reset()
         {
             _fileRecorder = FindObjectOfType<EnfluxFileRecorder>();
-            _fileRecorder.RecordingError += OnRecordingError;
+            _fileRecorder.RecordingReceivedError += OnRecordingReceivedError;
             _filePlayer = FindObjectOfType<EnfluxFilePlayer>();
-            _filePlayer.PlaybackError += OnPlaybackError;
+            _filePlayer.PlaybackReceivedError += OnPlaybackReceivedError;
 
             _filenameInputField = gameObject.FindChildComponent<InputField>("InputField_Filename");
             _startRecordingButton = gameObject.FindChildComponent<Button>("Button_StartRecording");
             _stopRecordingButton = gameObject.FindChildComponent<Button>("Button_StopRecording");
             _startPlaybackButton = gameObject.FindChildComponent<Button>("Button_StartPlayback");
             _stopPlaybackButton = gameObject.FindChildComponent<Button>("Button_StopPlayback");
-            _errorText.text = "";
-        }
-
-        private void OnRecordingError(RecordingResult error)
-        {
-            _errorText.text = "Error: " + error.ToString();
-        }
-
-        private void OnPlaybackError(PlaybackResult error)
-        {
-            _errorText.text = "Error: " + error.ToString();
+            _errorText = gameObject.FindChildComponent<Text>("Text_Error");
         }
 
         private void OnEnable()
         {
             _fileRecorder = _fileRecorder ?? FindObjectOfType<EnfluxFileRecorder>();
-            _fileRecorder.RecordingError += OnRecordingError;
+            _fileRecorder.RecordingReceivedError += OnRecordingReceivedError;
             _filePlayer = _filePlayer ?? FindObjectOfType<EnfluxFilePlayer>();
-            _filePlayer.PlaybackError += OnPlaybackError;
+            _filePlayer.PlaybackReceivedError += OnPlaybackReceivedError;
             _startRecordingButton.onClick.AddListener(StartRecordingButtonOnClick);
             _stopRecordingButton.onClick.AddListener(StopRecordingButtonOnClick);
             _startPlaybackButton.onClick.AddListener(StartPlaybackButtonOnClick);
@@ -63,8 +54,8 @@ namespace Enflux.Examples.UI
 
         private void OnDisable()
         {
-            _fileRecorder.RecordingError -= OnRecordingError;
-            _filePlayer.PlaybackError -= OnPlaybackError;
+            _fileRecorder.RecordingReceivedError -= OnRecordingReceivedError;
+            _filePlayer.PlaybackReceivedError -= OnPlaybackReceivedError;
             _startRecordingButton.onClick.RemoveListener(StartRecordingButtonOnClick);
             _stopRecordingButton.onClick.RemoveListener(StopRecordingButtonOnClick);
             _startPlaybackButton.onClick.RemoveListener(StartPlaybackButtonOnClick);
@@ -96,6 +87,16 @@ namespace Enflux.Examples.UI
             _stopRecordingButton.interactable = _fileRecorder != null;
             _startPlaybackButton.interactable = _filePlayer != null;
             _stopPlaybackButton.interactable = _filePlayer != null;
+        }
+
+        private void OnRecordingReceivedError(Notification<RecordingResult> errorNotification)
+        {
+            _errorText.text = string.Format("{0}, {1} recording error: {2}", _fileRecorder.name, errorNotification.Value, errorNotification.Message);
+        }
+
+        private void OnPlaybackReceivedError(Notification<PlaybackResult> errorNotification)
+        {
+            _errorText.text = string.Format("{0}, {1} playback error: {2}", _filePlayer.name, errorNotification.Value, errorNotification.Message);
         }
 
         private void StartRecordingButtonOnClick()

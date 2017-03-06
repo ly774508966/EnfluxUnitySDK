@@ -10,6 +10,6 @@
         FileDoesNotExist,
         FileLengthError,
         FileNameEmpty,
-        FileAlreadyOpen,
+        FileAlreadyOpen
     }
 }

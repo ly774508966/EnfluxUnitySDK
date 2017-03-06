@@ -10,8 +10,8 @@ namespace Enflux.SDK.Recording
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct AnimationHeader
     {
-        public const int HEADER_VERSION = 2;
-        public const int FRAME_VERSION = 1;
+        public const int SupportedHeaderVersion = 2;
+        public const int SupportedFrameVersion = 1;
 
         // Header format version
         public short HeaderVersion;

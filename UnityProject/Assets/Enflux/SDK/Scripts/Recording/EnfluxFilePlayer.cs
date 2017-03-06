@@ -15,15 +15,15 @@ namespace Enflux.SDK.Recording
 {
     public class EnfluxFilePlayer : EnfluxSuitStream
     {
-        public string Filename = "";
         [SerializeField, Readonly] private bool _isPlaying;
 
         private Coroutine _routine;
         private const float SecondsToMilliseconds = 1000.0f;
-
         private AnimationHeader _header;
 
-        public event Action<PlaybackResult> PlaybackError;
+        public string Filename = "";
+        public event Action<Notification<PlaybackResult>> PlaybackReceivedError;
+
 
         private string DefaultFilename
         {
@@ -87,11 +87,11 @@ namespace Enflux.SDK.Recording
 
         private bool ValidateHeader()
         {
-            if (_header.HeaderVersion != AnimationHeader.HEADER_VERSION)
+            if (_header.HeaderVersion != AnimationHeader.SupportedHeaderVersion)
             {
                 return false;
             }
-            if (_header.FrameVersion != AnimationHeader.FRAME_VERSION)
+            if (_header.FrameVersion != AnimationHeader.SupportedFrameVersion)
             {
                 return false;
             }
@@ -125,11 +125,8 @@ namespace Enflux.SDK.Recording
         {
             if (!File.Exists(Filename))
             {
-                Debug.LogError(name + ": Error, file path doesn't exist: '" + Filename + "'!");
-                if (PlaybackError != null)
-                {
-                    PlaybackError(PlaybackResult.FileDoesNotExist);
-                }
+                var errorMessage = name + ": Error, file path doesn't exist: '" + Filename + "'!";
+                RaisePlaybackErrorEvent(PlaybackResult.FileDoesNotExist, errorMessage);
                 IsPlaying = false;
                 yield break;
             }
@@ -152,21 +149,15 @@ namespace Enflux.SDK.Recording
                 }
                 else
                 {
-                    Debug.Log("Error reading the file header for: '" + Filename + "'");
-                    if (PlaybackError != null)
-                    {
-                        PlaybackError(PlaybackResult.CannotParseHeader);
-                    }
+                    var errorMessage = "Unable to read the file header for '" + Filename + "'";
+                    RaisePlaybackErrorEvent(PlaybackResult.InvalidHeader, errorMessage);
                     IsPlaying = false;
                     yield break;
                 }
                 if (!ValidateHeader())
                 {
-                    Debug.LogError(name + ": Error, incorrect file header: '" + Filename + "'!");
-                    if (PlaybackError != null)
-                    {
-                        PlaybackError(PlaybackResult.UnsupportedVersion);
-                    }
+                    var errorMessage = "Incorrect file header '" + Filename + "'!";
+                    RaisePlaybackErrorEvent(PlaybackResult.UnsupportedVersion, errorMessage);
                     IsPlaying = false;
                     yield break;
                 }
@@ -198,7 +189,6 @@ namespace Enflux.SDK.Recording
                         {
                             yield return null;
                         }
-
                     }
                     var dev_type = (EnfluxDevice) fileStream.ReadByte();
                     if (dev_type == EnfluxDevice.Shirt)
@@ -223,6 +213,16 @@ namespace Enflux.SDK.Recording
                 // Clean exit
                 IsPlaying = false;
             }
+        }
+
+        protected void RaisePlaybackErrorEvent(PlaybackResult errorType, string message)
+        {
+            var handler = PlaybackReceivedError;
+            if (handler != null)
+            {
+                handler(new Notification<PlaybackResult>(errorType, message));
+            }
+            Debug.LogError(string.Format("{0}, {1} playback error: {2}", name, errorType, message));
         }
     }
 }

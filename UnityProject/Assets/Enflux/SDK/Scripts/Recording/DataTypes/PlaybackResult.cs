@@ -3,9 +3,13 @@
     public enum PlaybackResult
     {
         Success = 0,
+        UnknownError,
         FileDoesNotExist,
-        CannotParseHeader,
-        CannotParseFrame,
-        UnsupportedVersion
+        InvalidHeader,
+        InvalidFrame,
+        InvalidFormat,
+        UnsupportedVersion,
+        PermissionError,
+        NoFileLoaded
     }
 }
