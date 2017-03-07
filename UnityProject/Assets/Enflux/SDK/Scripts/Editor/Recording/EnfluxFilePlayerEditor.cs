@@ -1,17 +1,19 @@
 ﻿// Copyright (c) 2017 Enflux Inc.
 // By downloading, accessing or using this SDK, you signify that you have read, understood and agree to the terms and conditions of the End User License Agreement located at: https://www.getenflux.com/pages/sdk-eula
+
+using System.IO;
 using Enflux.SDK.Recording;
 using UnityEditor;
 using UnityEngine;
 
-namespace Enflux.SDK.Editor.Playback
+namespace Enflux.SDK.Editor.Recording
 {
     [CustomEditor(typeof(EnfluxFilePlayer))]
     [CanEditMultipleObjects]
     public class EnfluxFilePlayerEditor : UnityEditor.Editor
     {
         private EnfluxFilePlayer _filePlayer;
-        private static string _previousFilepath;
+        private static string _previousDirectory;
         private const string SettingsPrefix = "Enflux-EnfluxFilePlayerEditor-";
 
 
@@ -35,7 +37,7 @@ namespace Enflux.SDK.Editor.Playback
 
             // Browse for enfl file
             EditorGUILayout.BeginVertical(EnfluxEditorUtils.GuiStyles.Box);
-            EditorGUILayout.LabelField("Load New File", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Load File", EditorStyles.boldLabel);
             EditorGUILayout.Space();
             EditorStyles.textField.wordWrap = true;
             _filePlayer.Filename = EditorGUILayout.TextArea(_filePlayer.Filename);
@@ -45,11 +47,11 @@ namespace Enflux.SDK.Editor.Playback
             {
                 GUI.FocusControl(null);
                 var filters = new[] {"Enflux Animation", "enfl", "All Files", "*"};
-                var path = EditorUtility.OpenFilePanelWithFilters("Open .enfl File", _previousFilepath, filters);
-                if (path != null)
+                var filename = EditorUtility.OpenFilePanelWithFilters("Open .enfl File", _previousDirectory, filters);
+                if (!string.IsNullOrEmpty(filename))
                 {
-                    _previousFilepath = path;
-                    _filePlayer.Filename = path;
+                    _previousDirectory = Path.GetDirectoryName(filename);
+                    _filePlayer.Filename = filename;
                 }
                 EditorUtility.SetDirty(this);
             }
@@ -81,12 +83,12 @@ namespace Enflux.SDK.Editor.Playback
 
         private void SaveSettings()
         {
-            EditorPrefs.SetString(SettingsPrefix + "PreviousFilepath", _previousFilepath);
+            EditorPrefs.SetString(SettingsPrefix + "PreviousDirectory", _previousDirectory);
         }
 
         private void LoadSettings()
         {
-            _previousFilepath = EditorPrefs.GetString(SettingsPrefix + "PreviousFilepath", Application.streamingAssetsPath);
+            _previousDirectory = EditorPrefs.GetString(SettingsPrefix + "PreviousDirectory", Application.streamingAssetsPath);
         }
     }
 }
