@@ -7,9 +7,8 @@ using Enflux.SDK.Utils;
 using UnityEditor;
 using UnityEngine;
 
-namespace Enflux.SDK.Editor
+namespace Enflux.SDK.Editor.Core
 {
-
     [CustomEditor(typeof(EnfluxManager))]
     [CanEditMultipleObjects]
     public class EnfluxManagerEditor : UnityEditor.Editor
