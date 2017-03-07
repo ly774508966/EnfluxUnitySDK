@@ -65,18 +65,22 @@ namespace Enflux.SDK.Editor.Recording
                 {
                     using (new EditorGUI.DisabledScope(string.IsNullOrEmpty(_fileRecorder.Filename)))
                     {
+                        EnfluxEditorUtils.SetEnfluxPlayButtonTheme();
                         if (GUILayout.Button("Start Recording"))
                         {
                             _fileRecorder.IsRecording = true;
                         }
+                        EnfluxEditorUtils.SetDefaultTheme();
                     }
                 }
                 else
                 {
+                    EnfluxEditorUtils.SetEnfluxStopButtonTheme();
                     if (GUILayout.Button("Stop Recording"))
                     {
                         _fileRecorder.IsRecording = false;
                     }
+                    EnfluxEditorUtils.SetDefaultTheme();
                 }
             }
             GUILayout.EndHorizontal();
