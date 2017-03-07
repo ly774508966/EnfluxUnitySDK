@@ -136,20 +136,19 @@ namespace Enflux.SDK.Core
                 case InputCommands.ErrorCalibrationFailed:
                     ShirtState = DeviceState.Connected;
                     RaiseShirtErrorEvent(DeviceError.CalibrationFailed);
-                    Debug.LogError(name + ": Device 'Shirt' failed to calibrate!");
+                    Debug.LogError("Device 'Shirt' failed to calibrate!");
                     break;
 
                 case InputCommands.ErrorNoCalibration:
                     ShirtState = DeviceState.Connected;
                     RaiseShirtErrorEvent(DeviceError.NoCalibration);
-                    Debug.LogError(name + ": Device 'Shirt' isn't calibrated. Please calibrate.");
+                    Debug.LogError("Device 'Shirt' isn't calibrated. Please calibrate.");
                     break;
 
                 case InputCommands.ErrorNoShirtPants:
                     ShirtState = DeviceState.Connected;
                     RaiseShirtErrorEvent(DeviceError.UnknownDevice);
-                    Debug.LogError(name +
-                                   ": Attempted to connect unknown device. Defaulting to 'Shirt'. Please fix this with the firmware update tools.");
+                    Debug.LogError("Attempted to connect unknown device. Defaulting to 'Shirt'. Please fix this with the firmware update tools.");
                     break;
             }
         }
@@ -181,20 +180,19 @@ namespace Enflux.SDK.Core
                 case InputCommands.ErrorCalibrationFailed:
                     PantsState = DeviceState.Connected;
                     RaisePantsErrorEvent(DeviceError.CalibrationFailed);
-                    Debug.LogError(name + ": Device 'Pants' failed to calibrate!");
+                    Debug.LogError("Device 'Pants' failed to calibrate!");
                     break;
 
                 case InputCommands.ErrorNoCalibration:
                     PantsState = DeviceState.Connected;
                     RaisePantsErrorEvent(DeviceError.NoCalibration);
-                    Debug.LogError(name + ": Device 'Pants' isn't calibrated. Please calibrate.");
+                    Debug.LogError("Device 'Pants' isn't calibrated. Please calibrate.");
                     break;
 
                 case InputCommands.ErrorNoShirtPants:
                     PantsState = DeviceState.Connected;
                     RaisePantsErrorEvent(DeviceError.UnknownDevice);
-                    Debug.LogError(name +
-                                   ": Attempted to connect unknown device. Defaulting to 'Shirt'. Please fix this with the firmware update tools.");
+                    Debug.LogError("Attempted to connect unknown device. Defaulting to 'Shirt'. Please fix this with the firmware update tools.");
                     break;
             }
         }
@@ -237,23 +235,23 @@ namespace Enflux.SDK.Core
         {
             if (device == EnfluxDevice.None)
             {
-                Debug.LogError(name + ": Device is 'None'!");
+                Debug.LogError("Device is 'None'!");
                 return;
             }
             if (IsActive(device))
             {
-                Debug.LogError(name + ": Device '" + device + "' is already connected!");
+                Debug.LogError("Device '" + device + "' is already connected!");
                 return;
             }
             // If should connect to both but we're already connected to one device, still connect to the other.
             if (device == EnfluxDevice.All && IsShirtActive)
             {
-                Debug.LogError(name + ": Device 'Shirt' is already connected!");
+                Debug.LogError("Device 'Shirt' is already connected!");
                 device = EnfluxDevice.Pants;
             }
             else if (device == EnfluxDevice.All && ArePantsActive)
             {
-                Debug.LogError(name + ": Device 'Pants' is already connected!");
+                Debug.LogError("Device 'Pants' is already connected!");
                 device = EnfluxDevice.Shirt;
             }
             else if (device == EnfluxDevice.Shirt && ArePantsActive)
@@ -267,7 +265,7 @@ namespace Enflux.SDK.Core
                 device = EnfluxDevice.All;
             }
 
-            Debug.Log(name + ": Connecting '" + device + "'...");
+            Debug.Log("Connecting '" + device + "'...");
             _pullInterface.StartStreaming(device);
         }
 
@@ -275,10 +273,10 @@ namespace Enflux.SDK.Core
         {
             if (!IsShirtActive && !ArePantsActive)
             {
-                Debug.LogError(name + ": No devices are connected!");
+                Debug.LogError("No devices are connected!");
                 return;
             }
-            Debug.Log(name + ": Disconnecting all devices...");
+            Debug.Log("Disconnecting all devices...");
             _pullInterface.EndStreaming();
 
             ShirtState = DeviceState.Disconnected;
@@ -313,15 +311,15 @@ namespace Enflux.SDK.Core
         {
             if (device == EnfluxDevice.None)
             {
-                Debug.LogError(name + ": Device is 'None'!");
+                Debug.LogError("Device is 'None'!");
                 return;
             }
             if (IsActive(device))
             {
-                Debug.LogError(name + ": Device '" + device + "' must be disconnected to calibrate!");
+                Debug.LogError("Device '" + device + "' must be disconnected to calibrate!");
                 return;
             }
-            Debug.Log(name + ": Calibrating '" + device + "'...");
+            Debug.Log("Calibrating '" + device + "'...");
             _pullInterface.StartCalibration(device);
         }
     }

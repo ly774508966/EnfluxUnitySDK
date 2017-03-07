@@ -9,6 +9,7 @@ using Enflux.SDK.Core;
 using Enflux.SDK.Core.DataTypes;
 using Enflux.SDK.Extensions;
 using Enflux.SDK.Recording.DataTypes;
+using Enflux.SDK.Utils;
 using UnityEngine;
 
 namespace Enflux.SDK.Recording
@@ -85,19 +86,6 @@ namespace Enflux.SDK.Recording
         }
 #endif
 
-        private bool ValidateHeader()
-        {
-            if (_header.HeaderVersion != AnimationHeader.SupportedHeaderVersion)
-            {
-                return false;
-            }
-            if (_header.FrameVersion != AnimationHeader.SupportedFrameVersion)
-            {
-                return false;
-            }
-            return true;
-        }
-
         private void ApplyAngles(EnfluxDevice device, ref byte[] rawFrame)
         {
             var angles = RPY.ParseDataForOrientationAngles(rawFrame);
@@ -123,10 +111,10 @@ namespace Enflux.SDK.Recording
 
         public IEnumerator Co_Playback()
         {
-            if (!File.Exists(Filename))
+            var validFileNotification = PlaybackUtils.IsValidEnflFile(Filename);
+            if (validFileNotification.Value != PlaybackResult.Success)
             {
-                var errorMessage = name + ": Error, file path doesn't exist: '" + Filename + "'!";
-                RaisePlaybackErrorEvent(PlaybackResult.FileDoesNotExist, errorMessage);
+                RaisePlaybackErrorEvent(validFileNotification.Value, validFileNotification.Message);
                 IsPlaying = false;
                 yield break;
             }
@@ -154,9 +142,16 @@ namespace Enflux.SDK.Recording
                     IsPlaying = false;
                     yield break;
                 }
-                if (!ValidateHeader())
+                if (!PlaybackUtils.IsValidHeader(_header))
                 {
-                    var errorMessage = "Incorrect file header '" + Filename + "'!";
+                    var errorMessage =
+                        string.Format(
+                            "Unsupported file header version! Have 'HeaderVersion: {0}, FrameVersion: {1}', expected 'HeaderVersion: {2}, FrameVersion: {3}'",
+                            _header.HeaderVersion,
+                            _header.FrameVersion,
+                            AnimationHeader.SupportedHeaderVersion,
+                            AnimationHeader.SupportedFrameVersion
+                        );
                     RaisePlaybackErrorEvent(PlaybackResult.UnsupportedVersion, errorMessage);
                     IsPlaying = false;
                     yield break;
@@ -222,7 +217,7 @@ namespace Enflux.SDK.Recording
             {
                 handler(new Notification<PlaybackResult>(errorType, message));
             }
-            Debug.LogError(string.Format("{0}, {1} playback error: {2}", name, errorType, message));
+            Debug.LogError(string.Format("{0}: {1}", errorType, message));
         }
     }
 }

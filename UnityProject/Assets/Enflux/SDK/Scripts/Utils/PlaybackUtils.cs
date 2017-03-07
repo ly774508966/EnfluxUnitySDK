@@ -5,7 +5,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Enflux.SDK.Core;
 using Enflux.SDK.Core.DataTypes;
-using Enflux.SDK.Recording;
 using Enflux.SDK.Recording.DataTypes;
 
 namespace Enflux.SDK.Utils
@@ -45,7 +44,7 @@ namespace Enflux.SDK.Utils
                 {
                     var errorMessage =
                         string.Format(
-                            "Incorrect file header version! Have 'HeaderVersion: {0}, FrameVersion: {1}', expected 'HeaderVersion: {2}, FrameVersion: {3}'",
+                            "Unsupported file header version! Have 'HeaderVersion: {0}, FrameVersion: {1}', expected 'HeaderVersion: {2}, FrameVersion: {3}'",
                             header.HeaderVersion,
                             header.FrameVersion,
                             AnimationHeader.SupportedHeaderVersion,

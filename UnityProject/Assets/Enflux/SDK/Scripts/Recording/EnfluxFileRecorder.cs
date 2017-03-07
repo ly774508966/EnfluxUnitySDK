@@ -5,6 +5,7 @@ using Enflux.SDK.Core;
 using Enflux.SDK.Extensions;
 using UnityEngine;
 using System;
+using System.IO;
 using Enflux.SDK.Recording.DataTypes;
 
 namespace Enflux.SDK.Recording
@@ -75,15 +76,27 @@ namespace Enflux.SDK.Recording
                 }
                 if (!_isRecording)
                 {
-                    var error = StartRecording(Filename);
+                    // Create directory for recording if it doesn't exist
+                    try
+                    {
+                        var directoryPath = Path.GetDirectoryName(Filename);
+                        Directory.CreateDirectory(directoryPath ?? "");
+                    }
+                    catch (Exception e)
+                    {
+                        IsRecording = false;
+                        RaiseRecordingErrorEvent(RecordingResult.FileOpenError, e.GetType() + " - " + e.Message);
+                        return;
+                    }
+                    var result = StartRecording(Filename);
                     // Close any persisting file (can happen in editor)
-                    if (error == RecordingResult.FileAlreadyOpen)
+                    if (result == RecordingResult.FileAlreadyOpen)
                     {
                         EndRecording();
-                        error = StartRecording(Filename);
+                        result = StartRecording(Filename);
                     }
 
-                    if (error == RecordingResult.Success)
+                    if (result == RecordingResult.Success)
                     {
                         _isRecording = true;
                     }
@@ -91,7 +104,7 @@ namespace Enflux.SDK.Recording
                     {
                         var errorMessage = "Unable to start recording.";
                         IsRecording = false;
-                        RaiseRecordingResultEvent(error, errorMessage);
+                        RaiseRecordingErrorEvent(result, errorMessage);
                     }
                 }
                 else
@@ -100,7 +113,7 @@ namespace Enflux.SDK.Recording
                     if (result != RecordingResult.Success)
                     {
                         var errorMessage = "Unable to end recording.";
-                        RaiseRecordingResultEvent(result, errorMessage);
+                        RaiseRecordingErrorEvent(result, errorMessage);
                     }
                     _isRecording = value;
                 }
@@ -125,12 +138,12 @@ namespace Enflux.SDK.Recording
                 if (shirtError != RecordingResult.Success)
                 {
                     var errorMessage = "Unable to set shirt base orientation.";
-                    RaiseRecordingResultEvent(shirtError, errorMessage);
+                    RaiseRecordingErrorEvent(shirtError, errorMessage);
                 }
                 if (pantsError != RecordingResult.Success)
                 {
                     var errorMessage = "Unable to set pants base orientation.";
-                    RaiseRecordingResultEvent(pantsError, errorMessage);
+                    RaiseRecordingErrorEvent(pantsError, errorMessage);
                 }
             }
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
@@ -158,14 +171,14 @@ namespace Enflux.SDK.Recording
 #endif
         }
 
-        private void RaiseRecordingResultEvent(RecordingResult result, string errorMessage)
+        private void RaiseRecordingErrorEvent(RecordingResult result, string errorMessage)
         {
             var handler = RecordingReceivedError;
             if (handler != null)
             {
                 handler(new Notification<RecordingResult>(result, errorMessage));
             }
-            Debug.LogError(string.Format("{0}, recording error {1}: {2}", name, result, errorMessage));
+            Debug.LogError(string.Format("{0}: {1}", result, errorMessage));
         }
     }
 }
