@@ -1,12 +1,12 @@
 ﻿// Copyright (c) 2017 Enflux Inc.
 // By downloading, accessing or using this SDK, you signify that you have read, understood and agree to the terms and conditions of the End User License Agreement located at: https://www.getenflux.com/pages/sdk-eula
-using System;
 using UnityEngine;
 
 namespace Enflux.SDK.Core
 {
     public class Humanoid : MonoBehaviour
     {
+        [SerializeField, HideInInspector] private EnfluxSuitStream _absoluteAnglesStream;
         private readonly JointRotations _jointRotations = new JointRotations();
 
         // Caching these guys rather than re-allocating every frame
@@ -24,15 +24,35 @@ namespace Enflux.SDK.Core
         private readonly float[] _yawAdjustedRightLowerLegAngles = new float[3];
 
         /// <summary>
-        /// The source of the absolute angles used to calculate local angles for each limb.
-        /// </summary>
-        public EnfluxSuitStream AbsoluteAnglesStream;
-
-        /// <summary>
         /// The angles of each limb in the humanoid relative to its parent limb.
         /// </summary>
         public readonly HumanoidAngles<Quaternion> LocalAngles = new HumanoidAngles<Quaternion>();
 
+
+        /// <summary>
+        /// The source of the absolute angles used to calculate local angles for each limb.
+        /// </summary>
+        public EnfluxSuitStream AbsoluteAnglesStream
+        {
+            get { return _absoluteAnglesStream; }
+            // HumanoidEditor calls this to correctly handle switching event subscription for the inspector
+            set
+            {
+                if (_absoluteAnglesStream == value)
+                {
+                    return;
+                }
+                if (_absoluteAnglesStream != null)
+                {
+                    UnsubscribeFromEvents();
+                }
+                _absoluteAnglesStream = value;
+                if (_absoluteAnglesStream != null)
+                {
+                    SubscribeToEvents();
+                }
+            }
+        }
 
         private Vector3 ChestBaseOrientation
         {
@@ -50,27 +70,25 @@ namespace Enflux.SDK.Core
             AbsoluteAnglesStream = AbsoluteAnglesStream ?? FindObjectOfType<EnfluxManager>();
         }
 
-        protected virtual void OnEnable()
+        private void Awake()
         {
             AbsoluteAnglesStream = AbsoluteAnglesStream ?? FindObjectOfType<EnfluxManager>();
-            if (AbsoluteAnglesStream == null)
+            if (AbsoluteAnglesStream != null)
+            {
+                SubscribeToEvents();
+            }
+            else
             {
                 Debug.LogError(name + ": AbsoluteAnglesStream isn't assigned and no instance is in the scene!");
-                enabled = false;
-                return;
             }
-            AbsoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged += OnUpperBodyAnglesChanged;
-            AbsoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged += OnLowerBodyAnglesChanged;
-        }
-
-        protected virtual void OnDisable()
-        {
-            AbsoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged -= OnUpperBodyAnglesChanged;
-            AbsoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged -= OnLowerBodyAnglesChanged;
         }
 
         private void OnUpperBodyAnglesChanged(HumanoidAngles<Vector3> absoluteAngles)
         {
+            if (!isActiveAndEnabled)
+            {
+                return;
+            }
             var headsetRotation = Quaternion.identity;
 
             // Pack absolute angles into arrays for calculations
@@ -135,6 +153,10 @@ namespace Enflux.SDK.Core
 
         private void OnLowerBodyAnglesChanged(HumanoidAngles<Vector3> absoluteAngles)
         {
+            if (!isActiveAndEnabled)
+            {
+                return;
+            }
             var headsetRotation = Quaternion.identity;
             var initialWaistYaw = WaistBaseOrientation.z;
             var initialWaistAngles = Quaternion.AngleAxis(initialWaistYaw, Vector3.up);
@@ -190,6 +212,26 @@ namespace Enflux.SDK.Core
 
             LocalAngles.SetLowerBodyAngles(localAngleWaist, localAngleLeftUpperLeg, localAngleLeftLowerLeg,
                 localAngleRightUpperLeg, localAngleRightLowerLeg);
+        }
+
+        private void SubscribeToEvents()
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+            AbsoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged += OnUpperBodyAnglesChanged;
+            AbsoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged += OnLowerBodyAnglesChanged;
+        }
+
+        private void UnsubscribeFromEvents()
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+            AbsoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged -= OnUpperBodyAnglesChanged;
+            AbsoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged -= OnLowerBodyAnglesChanged;
         }
     }
 }
