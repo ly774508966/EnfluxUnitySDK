@@ -146,6 +146,10 @@ namespace Enflux.SDK.Recording
                     RaiseRecordingErrorEvent(pantsError, errorMessage);
                 }
             }
+            else
+            {
+                Debug.LogWarning("SourceSuitStream is null! Both shirt and pants base orientation were not set.");
+            }
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             return EnfluxNativeFileRecorder.EndRecording();
 #else
