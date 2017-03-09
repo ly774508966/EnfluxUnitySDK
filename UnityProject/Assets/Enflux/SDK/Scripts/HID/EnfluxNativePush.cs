@@ -7,8 +7,19 @@ namespace Enflux.SDK.HID
 {
     public static class EnfluxNativePush
     {
-        private const string DllName = "EnfluxHID";
+        public struct Callbacks
+        {
+            public StatusCallback StatusReceived;
+            public DataStreamCallback DataStreamRecieved;
+        }
 
+        public struct RawCallbacks
+        {
+            public StatusCallback StatusReceived;
+            public RawDataCallback RawDataReceived;
+        }
+
+        private const string DllName = "EnfluxHID";
 
         // This callback updates the module rotations.
         public delegate void DataStreamCallback([In] EnfluxDevice device, [MarshalAs(UnmanagedType.LPArray, SizeConst = 5)] [In] SByteQuaternion[] data);
@@ -19,21 +30,7 @@ namespace Enflux.SDK.HID
         // This callback updates the device status with raw data.
         public delegate void RawDataCallback([In] EnfluxDevice device, int sensor, ref RawData data);
 
-        public struct Callbacks
-        {
-            public StatusCallback StatusReceived;
-            public DataStreamCallback DataStreamRecieved;
-        };
-
-        public struct RawCallbacks
-        {
-            public StatusCallback StatusReceived;
-            public RawDataCallback RawDataReceived;
-        }
-
-        // Sets the connection interval on the module.
-        [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void SetInterval(EnfluxDevice devices, ushort intervalMs);
+  
 
         // Starts streaming rotation data from the device. The callbacks will be called with updates.
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
