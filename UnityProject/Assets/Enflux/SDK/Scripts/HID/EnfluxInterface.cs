@@ -5,7 +5,7 @@ using Enflux.SDK.Core.DataTypes;
 
 namespace Enflux.SDK.HID
 {
-    public class EnfluxPullInterface
+    public class EnfluxInterface
     {
         public enum StreamingStatus
         {

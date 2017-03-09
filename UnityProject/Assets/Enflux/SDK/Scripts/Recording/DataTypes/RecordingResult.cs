@@ -10,6 +10,9 @@
         FileDoesNotExist,
         FileLengthError,
         FileNameEmpty,
-        FileAlreadyOpen
+        FileAlreadyOpen,
+
+        //Keep this at the end to not interfere with native code enum values
+        PlatformNotSupported
     }
 }

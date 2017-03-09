@@ -12,7 +12,7 @@ namespace Enflux.SDK.Core
         [SerializeField, Readonly] private DeviceState _shirtState = DeviceState.Disconnected;
         [SerializeField, Readonly] private DeviceState _pantsState = DeviceState.Disconnected;
 
-        private readonly EnfluxPullInterface _pullInterface = new EnfluxPullInterface();
+        private readonly EnfluxInterface _interface = new EnfluxInterface();
 
         public bool IsShirtActive
         {
@@ -94,14 +94,14 @@ namespace Enflux.SDK.Core
 
         private void OnEnable()
         {
-            _pullInterface.ReceivedShirtStatus += OnReceivedShirtStatus;
-            _pullInterface.ReceivedPantsStatus += OnReceivedPantsStatus;
+            _interface.ReceivedShirtStatus += OnReceivedShirtStatus;
+            _interface.ReceivedPantsStatus += OnReceivedPantsStatus;
         }
 
         private void OnDisable()
         {
-            _pullInterface.ReceivedShirtStatus -= OnReceivedShirtStatus;
-            _pullInterface.ReceivedPantsStatus -= OnReceivedPantsStatus;
+            _interface.ReceivedShirtStatus -= OnReceivedShirtStatus;
+            _interface.ReceivedPantsStatus -= OnReceivedPantsStatus;
         }
 
         private void OnApplicationQuit()
@@ -199,11 +199,11 @@ namespace Enflux.SDK.Core
 
         private void Update()
         {
-            _pullInterface.PollDevices();
+            _interface.PollDevices();
 
             if (IsShirtActive)
             {
-                var upperModuleAngles = RPY.ParseDataForOrientationAngles(EnfluxPullInterface.ShirtRPY);
+                var upperModuleAngles = RPY.ParseDataForOrientationAngles(EnfluxInterface.ShirtRPY);
                 if (ShirtState == DeviceState.Initializing && upperModuleAngles.IsInitialized)
                 {
                     ShirtState = DeviceState.Streaming;
@@ -217,7 +217,7 @@ namespace Enflux.SDK.Core
             }
             if (ArePantsActive)
             {
-                var lowerModuleAngles = RPY.ParseDataForOrientationAngles(EnfluxPullInterface.PantsRPY);
+                var lowerModuleAngles = RPY.ParseDataForOrientationAngles(EnfluxInterface.PantsRPY);
                 if (PantsState == DeviceState.Initializing && lowerModuleAngles.IsInitialized)
                 {
                     PantsState = DeviceState.Streaming;
@@ -266,7 +266,7 @@ namespace Enflux.SDK.Core
             }
 
             Debug.Log("Connecting '" + device + "'...");
-            _pullInterface.StartStreaming(device);
+            _interface.StartStreaming(device);
         }
 
         public void Disconnect()
@@ -277,7 +277,7 @@ namespace Enflux.SDK.Core
                 return;
             }
             Debug.Log("Disconnecting all devices...");
-            _pullInterface.EndStreaming();
+            _interface.EndStreaming();
 
             ShirtState = DeviceState.Disconnected;
             PantsState = DeviceState.Disconnected;
@@ -285,7 +285,7 @@ namespace Enflux.SDK.Core
 
         private void Shutdown()
         {
-            _pullInterface.EndStreaming();
+            _interface.EndStreaming();
 
             ShirtState = DeviceState.Disconnected;
             PantsState = DeviceState.Disconnected;
@@ -320,7 +320,7 @@ namespace Enflux.SDK.Core
                 return;
             }
             Debug.Log("Calibrating '" + device + "'...");
-            _pullInterface.StartCalibration(device);
+            _interface.StartCalibration(device);
         }
     }
 }

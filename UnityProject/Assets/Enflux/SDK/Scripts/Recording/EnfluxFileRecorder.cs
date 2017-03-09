@@ -125,7 +125,7 @@ namespace Enflux.SDK.Recording
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             return EnfluxNativeFileRecorder.StartRecording(filename);
 #else
-            return RecordingResult.Success;
+            return RecordingResult.PlatformNotSupported;
 #endif
         }
 
@@ -149,7 +149,7 @@ namespace Enflux.SDK.Recording
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             return EnfluxNativeFileRecorder.EndRecording();
 #else
-            return RecordingResult.Success;
+            return RecordingResult.PlatformNotSupported;
 #endif
         }
 
@@ -158,7 +158,7 @@ namespace Enflux.SDK.Recording
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             return EnfluxNativeFileRecorder.SetShirtBaseOrientation(orientation.ToEnfluxVector3());
 #else
-            return RecordingResult.Success;
+            return RecordingResult.PlatformNotSupported;
 #endif
         }
 
@@ -167,7 +167,7 @@ namespace Enflux.SDK.Recording
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             return EnfluxNativeFileRecorder.SetPantsBaseOrientation(orientation.ToEnfluxVector3());
 #else
-            return RecordingResult.Success;
+            return RecordingResult.PlatformNotSupported;
 #endif
         }
 
