@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2017 Enflux Inc.
 // By downloading, accessing or using this SDK, you signify that you have read, understood and agree to the terms and conditions of the End User License Agreement located at: https://www.getenflux.com/pages/sdk-eula
 
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -65,9 +66,6 @@ namespace Enflux.SDK.Utils
             "cen"
         };
 
-        private const string RegexFormatString = "{0}[\\ _\\-]*{1}";
-
-
         public static Transform ResolveCore(Transform root)
         {
             return ResolveLimbTransformByName(root, StandardCoreNames, StandardCenterNames);
@@ -127,12 +125,14 @@ namespace Enflux.SDK.Utils
         /// <param name="possibleLimbNames"></param>
         /// <param name="possibleDirectionNames">List of possible prefixes or suffixes</param>
         /// <returns></returns>
-        private static Transform ResolveLimbTransformByName(this Transform root, string[] possibleLimbNames, string[] possibleDirectionNames)
+        private static Transform ResolveLimbTransformByName(this Transform root, IList<string> possibleLimbNames, IList<string> possibleDirectionNames)
         {
             if (root == null)
             {
                 return null;
             }
+            // TODO: Can probably change the ordering of loops/checks to significantly optimize the speed of this method! 
+            const string regexFormatString = "{0}[\\ _\\-]*{1}";
             var children = root.GetComponentsInChildren<Transform>(true);
             // ReSharper disable once LoopCanBeConvertedToQuery
             // ReSharper disable once ForCanBeConvertedToForeach
@@ -141,21 +141,23 @@ namespace Enflux.SDK.Utils
                 var childName = children[i].name.ToLower();
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 // ReSharper disable once ForCanBeConvertedToForeach
-                for (var j = 0; j < possibleLimbNames.Length; ++j)
+                for (var j = 0; j < possibleLimbNames.Count; ++j)
                 {
                     var limbName = possibleLimbNames[j];
-                    for (var k = 0; k < possibleDirectionNames.Length; ++k)
+                    // ReSharper disable once LoopCanBeConvertedToQuery
+                    // ReSharper disable once ForCanBeConvertedToForeach
+                    for (var k = 0; k < possibleDirectionNames.Count; ++k)
                     {
                         var directionName = possibleDirectionNames[k];
 
                         // Check for directiom name then "", " ", "_", or "-" then limb name.
-                        var prefixRegex = new Regex(string.Format(RegexFormatString, directionName, limbName));
+                        var prefixRegex = new Regex(string.Format(regexFormatString, directionName, limbName));
                         if (prefixRegex.IsMatch(childName))
                         {
                             return children[i];
                         }
                         // Check for limb name then "", " ", "_", or "-" then direction name.
-                        var suffixRegex = new Regex(string.Format(RegexFormatString, limbName, directionName));
+                        var suffixRegex = new Regex(string.Format(regexFormatString, limbName, directionName));
                         if (suffixRegex.IsMatch(childName))
                         {
                             return children[i];

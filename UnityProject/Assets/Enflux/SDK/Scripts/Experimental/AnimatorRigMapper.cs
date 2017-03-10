@@ -1,8 +1,8 @@
 ﻿using System.Collections;
+using Enflux.SDK.Animation;
 using UnityEngine;
-using Quaternion = UnityEngine.Quaternion;
 
-namespace Enflux.SDK.Animation
+namespace Enflux.SDK.Experimental
 {
     [ExecuteInEditMode]
     public class AnimatorRigMapper : RigMapper
@@ -33,10 +33,7 @@ namespace Enflux.SDK.Animation
             if (!IsAnimatorConfigured(true))
             {
                 enabled = false;
-                return;
             }
-            return; //TODO: Remove and fix annoying editor error messages!
-            RegenerateRigDirections();
         }
 
         private void OnEnable()
@@ -44,7 +41,6 @@ namespace Enflux.SDK.Animation
             if (!IsAnimatorConfigured(true))
             {
                 enabled = false;
-                return;
             }
         }
 
@@ -69,31 +65,28 @@ namespace Enflux.SDK.Animation
                 return;
             }
 
-            if (_rigForward.magnitude <= Mathf.Epsilon)
-            {
-                return; //TODO: Remove and fix annoying editor error messages!
-                RegenerateRigDirections();
-            }
-
             var hipsTransform = _animator.GetBoneTransform(HumanBodyBones.Hips);
-            Gizmos.color = Color.green;
-            Gizmos.DrawRay(hipsTransform.position, _rigUp);
+            if (hipsTransform != null)
+            {
+                Gizmos.color = Color.green;
+                Gizmos.DrawRay(hipsTransform.position, _rigUp);
 
-            Gizmos.color = Color.blue;
-            Gizmos.DrawRay(hipsTransform.position, _rigForward);
+                Gizmos.color = Color.blue;
+                Gizmos.DrawRay(hipsTransform.position, _rigForward);
 
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(hipsTransform.position, _rigRight);
+                Gizmos.color = Color.red;
+                Gizmos.DrawRay(hipsTransform.position, _rigRight);
+            }
         }
 
         public override void ApplyHumanoidToRig()
         {
-            if (!Application.isPlaying || Waist == null || Humanoid == null)
+            if (!Application.isPlaying || !isActiveAndEnabled || Waist == null || Humanoid == null)
             {
                 return;
             }
 
-            // TODO: Handle null joints!
+            // TODO: Investigate handling null joints! Null values may not be possible at this point b/c of the Unity's Animator rig validation.
             Hips.localRotation = Quaternion.identity;
 
             Core.localRotation = Humanoid.LocalAngles.Chest;
@@ -108,7 +101,7 @@ namespace Enflux.SDK.Animation
             RightUpperLeg.localRotation = Humanoid.LocalAngles.RightUpperLeg;
             RightLowerLeg.localRotation = Humanoid.LocalAngles.RightLowerLeg;
 
-            var chestWorldRotation = Core.rotation;
+            var coreWorldRotation = Core.rotation;
             var leftUpperArmWorldRotation = LeftUpperArm.rotation;
             var leftLowerArmWorldRotation = LeftLowerArm.rotation;
             var rightUpperArmWorldRotation = RightUpperArm.rotation;
@@ -120,9 +113,10 @@ namespace Enflux.SDK.Animation
             var rightUpperLegWorldRotation = RightUpperLeg.rotation;
             var rightLowerLegWorldRotation = RightLowerLeg.rotation;
 
-            Hips.rotation = Quaternion.Lerp(chestWorldRotation, waistWorldRotation, 0.25f);
+            // Prefer to blend closer to the waist rotation than the core rotation
+            Hips.rotation = Quaternion.Lerp(coreWorldRotation, waistWorldRotation, 0.25f);
 
-            Core.rotation = chestWorldRotation;
+            Core.rotation = coreWorldRotation;
             LeftUpperArm.rotation = leftUpperArmWorldRotation;
             LeftLowerArm.rotation = leftLowerArmWorldRotation;
             RightUpperArm.rotation = rightUpperArmWorldRotation;
@@ -163,7 +157,7 @@ namespace Enflux.SDK.Animation
             var root = new GameObject("Enflux Waist");
             Waist = root.transform;
             Waist.SetParent(hips, false);
-            Waist.localPosition = Vector3.zero; // Verify that set initial transform values is even necessary
+            Waist.localPosition = Vector3.zero; // TODO: Verify that set initial transform values is even necessary
 
             if (leftUpperLeg != null)
             {
@@ -186,12 +180,12 @@ namespace Enflux.SDK.Animation
             var headTransform = _animator.GetBoneTransform(HumanBodyBones.Head);
             if (hipsTransform == null)
             {
-                Debug.LogError(gameObject.name + ": Animator does not contain a bone transform for hips!");
+                Debug.LogError(gameObject.name + " - Animator does not contain a bone transform for hips!");
                 return;
             }
             if (headTransform == null)
             {
-                Debug.LogError(gameObject.name + ": Animator does not contain a bone transform for head!");
+                Debug.LogError(gameObject.name + " - Animator does not contain a bone transform for head!");
                 return;
             }
 
