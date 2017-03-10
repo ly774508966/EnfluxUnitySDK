@@ -38,6 +38,7 @@ namespace Enflux.SDK.Experimental
 
         private void OnEnable()
         {
+            _animator = _animator ?? GetComponent<Animator>();
             if (!IsAnimatorConfigured(true))
             {
                 enabled = false;
