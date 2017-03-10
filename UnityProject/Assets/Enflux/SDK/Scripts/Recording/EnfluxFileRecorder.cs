@@ -29,7 +29,7 @@ namespace Enflux.SDK.Recording
             Filename = DefaultFilename;
         }
 
-        private void OnEnable()
+        private void Awake()
         {
             _sourceSuitStream = _sourceSuitStream ?? FindObjectOfType<EnfluxManager>();
 

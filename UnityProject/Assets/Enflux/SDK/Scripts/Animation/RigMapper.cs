@@ -5,81 +5,20 @@ using UnityEngine;
 
 namespace Enflux.SDK.Animation
 {
-    public class RigMapper : MonoBehaviour
+    public abstract class RigMapper : MonoBehaviour
     {
         [SerializeField] private Humanoid _humanoid;
 
-        [SerializeField] private Transform _chest;
-        [SerializeField] private Transform _leftUpperArm;
-        [SerializeField] private Transform _leftLowerArm;
-        [SerializeField] private Transform _rightUpperArm;
-        [SerializeField] private Transform _rightLowerArm;
-        [SerializeField] private Transform _waist;
-        [SerializeField] private Transform _leftUpperLeg;
-        [SerializeField] private Transform _leftLowerLeg;
-        [SerializeField] private Transform _rightUpperLeg;
-        [SerializeField] private Transform _rightLowerLeg;
-
-
-        public Transform Chest
-        {
-            get { return _chest; }
-            set { _chest = value; }
-        }
-
-        public Transform LeftUpperArm
-        {
-            get { return _leftUpperArm; }
-            set { _leftUpperArm = value; }
-        }
-
-        public Transform LeftLowerArm
-        {
-            get { return _leftLowerArm; }
-            set { _leftLowerArm = value; }
-        }
-
-        public Transform RightUpperArm
-        {
-            get { return _rightUpperArm; }
-            set { _rightUpperArm = value; }
-        }
-
-        public Transform RightLowerArm
-        {
-            get { return _rightLowerArm; }
-            set { _rightLowerArm = value; }
-        }
-
-        public Transform Waist
-        {
-            get { return _waist; }
-            set { _waist = value; }
-        }
-
-        public Transform LeftUpperLeg
-        {
-            get { return _leftUpperLeg; }
-            set { _leftUpperLeg = value; }
-        }
-
-        public Transform LeftLowerLeg
-        {
-            get { return _leftLowerLeg; }
-            set { _leftLowerLeg = value; }
-        }
-
-        public Transform RightUpperLeg
-        {
-            get { return _rightUpperLeg; }
-            set { _rightUpperLeg = value; }
-        }
-
-        public Transform RightLowerLeg
-        {
-            get { return _rightLowerLeg; }
-            set { _rightLowerLeg = value; }
-        }
+        public virtual Transform Core { get; protected set; }
+        public virtual Transform LeftUpperArm { get; protected set; }
+        public virtual Transform LeftLowerArm { get; protected set; }
+        public virtual Transform RightUpperArm { get; protected set; }
+        public virtual Transform RightLowerArm { get; protected set; }
+        public virtual Transform Waist { get; protected set; }
+        public virtual Transform LeftUpperLeg { get; protected set; }
+        public virtual Transform LeftLowerLeg { get; protected set; }
+        public virtual Transform RightUpperLeg { get; protected set; }
+        public virtual Transform RightLowerLeg { get; protected set; }
 
         public Humanoid Humanoid
         {
@@ -93,23 +32,21 @@ namespace Enflux.SDK.Animation
             Humanoid = FindObjectOfType<Humanoid>();
         }
 
-        protected virtual void OnEnable()
+        protected virtual void Awake()
         {
             Humanoid = Humanoid ?? FindObjectOfType<Humanoid>();
-
             if (Humanoid == null)
             {
                 Debug.LogError("Humanoid is not assigned and there is no instance in the scene!");
-                enabled = false;
             }
         }
 
         protected virtual void LateUpdate()
         {
-            UpdateRig();
+            ApplyHumanoidToRig();
         }
 
-        public virtual void UpdateRig()
+        public virtual void ApplyHumanoidToRig()
         {
             if (Humanoid == null)
             {
@@ -117,9 +54,9 @@ namespace Enflux.SDK.Animation
             }
 
             // Apply upper body rotations to rig
-            if (Chest != null)
+            if (Core != null)
             {
-                Chest.localRotation = Humanoid.LocalAngles.Chest;
+                Core.localRotation = Humanoid.LocalAngles.Chest;
             }
             if (LeftUpperArm != null)
             {
