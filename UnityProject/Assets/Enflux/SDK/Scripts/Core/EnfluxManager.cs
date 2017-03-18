@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace Enflux.SDK.Core
 {
+    /// <summary>
+    /// Handles the state of individual Enflux clothing and provides methods to connect, disconnect, and calibrate shirt and pants.
+    /// </summary>
     public class EnfluxManager : EnfluxSuitStream
     {
         [SerializeField] private bool _connectOnStart;

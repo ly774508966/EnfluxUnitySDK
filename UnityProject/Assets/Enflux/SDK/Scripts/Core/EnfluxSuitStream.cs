@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace Enflux.SDK.Core
 {
+    /// <summary>
+    /// Defines an Enflux suit (pair of Enflux shirt+pants). 
+    /// Provides absolute sensor orientations (relative to real-world directions), the starting absolute orientation of the suit, and outputs events for device state, device notifications, and device errors.
+    /// </summary>
     public abstract class EnfluxSuitStream : MonoBehaviour
     {
         [SerializeField, Readonly] private DeviceState _shirtState = DeviceState.Disconnected;

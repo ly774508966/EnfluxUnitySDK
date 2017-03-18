@@ -4,6 +4,10 @@ using System;
 
 namespace Enflux.SDK.Core
 {
+    /// <summary>
+    /// Generic container to store orientations of humanoid limbs.
+    /// </summary>
+    /// <typeparam name="T">The data type of the orientations (eg. Vector3, Quaternion, ect.)</typeparam>
     [Serializable]
     public class HumanoidAngles<T>
     {

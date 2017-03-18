@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace Enflux.SDK.Animation
 {
+    /// <summary>
+    /// This class animates a rig defined by Transforms.
+    /// </summary>
     public class TransformRigMapper : RigMapper
     {
         [SerializeField] private Transform _chest;

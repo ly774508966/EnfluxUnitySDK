@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace Enflux.SDK.Core
 {
+    /// <summary>
+    /// Transforms absolute sensor orientations into local orientations (each sensor orientation relative to its parent limb sensor)
+    /// </summary>
     public class Humanoid : MonoBehaviour
     {
         [SerializeField, HideInInspector] private EnfluxSuitStream _absoluteAnglesStream;

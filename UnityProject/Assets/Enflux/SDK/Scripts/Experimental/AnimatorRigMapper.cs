@@ -1,9 +1,36 @@
-﻿using System.Collections;
+﻿// Copyright (c) 2017 Enflux Inc.
+// By downloading, accessing or using this SDK, you signify that you have read, understood and agree to the terms and conditions of the End User License Agreement located at: https://www.getenflux.com/pages/sdk-eula
+
+using System.Collections;
 using Enflux.SDK.Animation;
 using UnityEngine;
 
 namespace Enflux.SDK.Experimental
 {
+    /// <summary>
+    /// This is an experimental class to animate a rig via Unity's animator component. This implementation is a convenience prototype for using different 3D characters and not officially supported by Enflux yet.
+    /// 
+    /// <para>
+    /// <list type="number">
+    /// <listheader>Requirements for the 3D model:</listheader>
+    /// <item>The rig must be exported in the z-forward direction.</item>
+    /// <item>No initial rotations can applied to the limb joints (except z-axis rotation for the left/right upper arms).</item>
+    /// </list>
+    /// </para>
+    /// 
+    /// <para>
+    /// <list type="number">
+    /// <listheader>Unity setup:</listheader>
+    /// <item>On the 3D model, set Animation Type to Humanoid.</item>
+    /// <item>On the 3D model, ensure you have correctly configured the avatar as a humanoid. There will be a checkmark under Avatar Definition.</item>
+    /// <item>On the 3D model, DO NOT enable Optimize Game Objects. Unity will flatten the rig's hierarchy and remove the Transforms for each joint.</item>
+    /// 
+    /// </list>
+    /// </para> 
+    /// 
+    /// <remarks>This implementation doesn't support mixing Mecanim animations. It changes the Animator rig's hierarchy at runtime, which Unity's animation system is unable to handle.
+    /// </remarks>
+    /// </summary>
     [ExecuteInEditMode]
     public class AnimatorRigMapper : RigMapper
     {

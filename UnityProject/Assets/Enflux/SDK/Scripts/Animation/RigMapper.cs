@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace Enflux.SDK.Animation
 {
+    /// <summary>
+    /// Defines core functionality required to animate a rig from a Humanoid via forward kinematics.
+    /// </summary>
     public abstract class RigMapper : MonoBehaviour
     {
         [SerializeField] private Humanoid _humanoid;
