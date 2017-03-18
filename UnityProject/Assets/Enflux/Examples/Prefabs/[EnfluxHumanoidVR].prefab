@@ -3825,7 +3825,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1826730152782008}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6eca672ba63f90c4c9b3918929bb1d85, type: 3}
+  m_Script: {fileID: 11500000, guid: 62f7e960635708f4789eb827252ddfe6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _humanoid: {fileID: 114953429738589958}
@@ -3850,7 +3850,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 729f2abff3c62bb438f084cef32097e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AbsoluteAnglesStream: {fileID: 0}
+  _absoluteAnglesStream: {fileID: 0}
 --- !u!137 &137000013751424576
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1

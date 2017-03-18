@@ -32,7 +32,7 @@ namespace Enflux.SDK.Animation
 
         protected virtual void Reset()
         {
-            Humanoid = FindObjectOfType<Humanoid>();
+            Humanoid = GetComponentInChildren<Humanoid>(true);
         }
 
         protected virtual void Awake()

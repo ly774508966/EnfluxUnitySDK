@@ -22,13 +22,13 @@ namespace Enflux.SDK.Experimental
     /// <list type="number">
     /// <listheader>Unity setup:</listheader>
     /// <item>On the 3D model, set Animation Type to Humanoid.</item>
-    /// <item>On the 3D model, ensure you have correctly configured the avatar as a humanoid. There will be a checkmark under Avatar Definition.</item>
+    /// <item>On the 3D model, ensure you have correctly configured the avatar as a humanoid. If correctly configured, there will be a checkmark under Avatar Definition.</item>
     /// <item>On the 3D model, DO NOT enable Optimize Game Objects. Unity will flatten the rig's hierarchy and remove the Transforms for each joint.</item>
     /// 
     /// </list>
     /// </para> 
     /// 
-    /// <remarks>This implementation doesn't support mixing Mecanim animations. It changes the Animator rig's hierarchy at runtime, which Unity's animation system is unable to handle.
+    /// <remarks>This implementation doesn't support mixing Mecanim animations. It changes the Animator rig's hierarchy at runtime, which Unity's animation system is unable to handle currently.
     /// </remarks>
     /// </summary>
     [ExecuteInEditMode]

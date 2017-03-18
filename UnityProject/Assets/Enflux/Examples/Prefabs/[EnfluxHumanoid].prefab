@@ -1897,7 +1897,7 @@ GameObject:
   m_Component:
   - 4: {fileID: 4898635102327794}
   - 114: {fileID: 114953429738589958}
-  - 114: {fileID: 114000010833671744}
+  - 114: {fileID: 114000012260963212}
   m_Layer: 0
   m_Name: '[EnfluxHumanoid]'
   m_TagString: Untagged
@@ -3683,7 +3683,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1826730152782008}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.5, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
@@ -3707,7 +3707,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
---- !u!114 &114000010833671744
+--- !u!114 &114000012260963212
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}

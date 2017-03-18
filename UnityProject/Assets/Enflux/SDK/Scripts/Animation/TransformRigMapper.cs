@@ -89,7 +89,6 @@ namespace Enflux.SDK.Animation
         protected override void Reset()
         {
             base.Reset();
-            Humanoid = FindObjectOfType<Humanoid>();
             Core = RigUtils.ResolveCore(transform);
             LeftUpperArm = RigUtils.ResolveLeftUpperArm(transform);
             LeftLowerArm = RigUtils.ResolveLeftLowerArm(transform);
