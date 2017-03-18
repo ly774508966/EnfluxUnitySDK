@@ -87,16 +87,16 @@ namespace Enflux.SDK.Animation
         {
             base.Reset();
             Humanoid = FindObjectOfType<Humanoid>();
-            Core = RigMapperUtils.ResolveCore(transform);
-            LeftUpperArm = RigMapperUtils.ResolveLeftUpperArm(transform);
-            LeftLowerArm = RigMapperUtils.ResolveLeftLowerArm(transform);
-            RightUpperArm = RigMapperUtils.ResolveRightUpperArm(transform);
-            RightLowerArm = RigMapperUtils.ResolveRightLowerArm(transform);
-            Waist = RigMapperUtils.ResolveWaist(transform);
-            LeftUpperLeg = RigMapperUtils.ResolveLeftUpperLeg(transform);
-            LeftLowerLeg = RigMapperUtils.ResolveLeftLowerLeg(transform);
-            RightUpperLeg = RigMapperUtils.ResolveRightUpperLeg(transform);
-            RightLowerLeg = RigMapperUtils.ResolveRightLowerLeg(transform);
+            Core = RigUtils.ResolveCore(transform);
+            LeftUpperArm = RigUtils.ResolveLeftUpperArm(transform);
+            LeftLowerArm = RigUtils.ResolveLeftLowerArm(transform);
+            RightUpperArm = RigUtils.ResolveRightUpperArm(transform);
+            RightLowerArm = RigUtils.ResolveRightLowerArm(transform);
+            Waist = RigUtils.ResolveWaist(transform);
+            LeftUpperLeg = RigUtils.ResolveLeftUpperLeg(transform);
+            LeftLowerLeg = RigUtils.ResolveLeftLowerLeg(transform);
+            RightUpperLeg = RigUtils.ResolveRightUpperLeg(transform);
+            RightLowerLeg = RigUtils.ResolveRightLowerLeg(transform);
         }
 
         public void SetCore(Transform chest)

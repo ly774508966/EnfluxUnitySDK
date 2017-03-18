@@ -1,11 +1,12 @@
 ﻿// Copyright (c) 2017 Enflux Inc.
 // By downloading, accessing or using this SDK, you signify that you have read, understood and agree to the terms and conditions of the End User License Agreement located at: https://www.getenflux.com/pages/sdk-eula
-using Enflux.Attributes;
+
 using Enflux.SDK.Core;
 using Enflux.SDK.Extensions;
 using UnityEngine;
 using System;
 using System.IO;
+using Enflux.SDK.Attributes;
 using Enflux.SDK.Recording.DataTypes;
 
 namespace Enflux.SDK.Recording
@@ -160,7 +161,7 @@ namespace Enflux.SDK.Recording
         private RecordingResult SetShirtBaseOrientation(Vector3 orientation)
         {
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-            return EnfluxNativeFileRecorder.SetShirtBaseOrientation(orientation.ToEnfluxVector3());
+            return EnfluxNativeFileRecorder.SetShirtBaseOrientation(orientation.ToShortVector3());
 #else
             return RecordingResult.PlatformNotSupported;
 #endif
@@ -169,7 +170,7 @@ namespace Enflux.SDK.Recording
         private RecordingResult SetPantsBaseOrientation(Vector3 orientation)
         {
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-            return EnfluxNativeFileRecorder.SetPantsBaseOrientation(orientation.ToEnfluxVector3());
+            return EnfluxNativeFileRecorder.SetPantsBaseOrientation(orientation.ToShortVector3());
 #else
             return RecordingResult.PlatformNotSupported;
 #endif

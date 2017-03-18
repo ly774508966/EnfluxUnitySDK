@@ -8,6 +8,7 @@ namespace Enflux.SDK.Core
     {
         [SerializeField, HideInInspector] private EnfluxSuitStream _absoluteAnglesStream;
         private readonly JointRotations _jointRotations = new JointRotations();
+        private bool _isSubscribed;
 
         // Caching these guys rather than re-allocating every frame
         private readonly float[] _baseChestAngles = new float[3];
@@ -56,12 +57,12 @@ namespace Enflux.SDK.Core
 
         private Vector3 ChestBaseOrientation
         {
-            get { return AbsoluteAnglesStream.ShirtBaseOrientation; }
+            get { return AbsoluteAnglesStream != null ? AbsoluteAnglesStream.ShirtBaseOrientation : Vector3.zero; }
         }
 
         private Vector3 WaistBaseOrientation
         {
-            get { return AbsoluteAnglesStream.PantsBaseOrientation; }
+            get { return AbsoluteAnglesStream != null ? AbsoluteAnglesStream.PantsBaseOrientation : Vector3.zero; }
         }
 
 
@@ -72,14 +73,17 @@ namespace Enflux.SDK.Core
 
         private void Awake()
         {
-            AbsoluteAnglesStream = AbsoluteAnglesStream ?? FindObjectOfType<EnfluxManager>();
             if (AbsoluteAnglesStream != null)
             {
                 SubscribeToEvents();
             }
-            else
+        }
+
+        private void OnDestroy()
+        {
+            if (_isSubscribed)
             {
-                Debug.LogError(name + ": AbsoluteAnglesStream isn't assigned and no instance is in the scene!");
+                UnsubscribeFromEvents();
             }
         }
 
@@ -220,6 +224,7 @@ namespace Enflux.SDK.Core
             {
                 return;
             }
+            _isSubscribed = true;
             AbsoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged += OnUpperBodyAnglesChanged;
             AbsoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged += OnLowerBodyAnglesChanged;
         }
@@ -230,6 +235,7 @@ namespace Enflux.SDK.Core
             {
                 return;
             }
+            _isSubscribed = false;
             AbsoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged -= OnUpperBodyAnglesChanged;
             AbsoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged -= OnLowerBodyAnglesChanged;
         }

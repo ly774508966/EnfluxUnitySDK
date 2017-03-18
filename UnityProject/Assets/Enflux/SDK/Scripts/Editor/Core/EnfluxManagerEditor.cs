@@ -14,10 +14,12 @@ namespace Enflux.SDK.Editor.Core
     public class EnfluxManagerEditor : UnityEditor.Editor
     {
         private EnfluxManager _manager;
+        private SerializedProperty _connectOnStartProperty;
 
         private void OnEnable()
         {
             _manager = (EnfluxManager) target;
+            _connectOnStartProperty = serializedObject.FindProperty("_connectOnStart");
         }
 
         public override void OnInspectorGUI()
@@ -27,13 +29,16 @@ namespace Enflux.SDK.Editor.Core
             EditorGUILayout.LabelField("Connection", EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
+            using (new EditorGUI.DisabledScope(true))
+            {
+                EditorGUILayout.EnumPopup("Shirt State", _manager.ShirtState);
+                EditorGUILayout.EnumPopup("Pants State", _manager.PantsState);
+            }
+
+            EditorGUILayout.PropertyField(_connectOnStartProperty);
+
             using (new EditorGUI.DisabledScope(!this.IsGuiEnabled()))
             {
-                using (new EditorGUI.DisabledScope(true))
-                {
-                    EditorGUILayout.EnumPopup("Shirt State", _manager.ShirtState);
-                    EditorGUILayout.EnumPopup("Pants State", _manager.PantsState);
-                }
                 // Connect/disconnect shirt or pants
                 GUILayout.BeginHorizontal();
                 EnfluxEditorUtils.SetEnfluxNormalButtonTheme();
@@ -141,6 +146,8 @@ namespace Enflux.SDK.Editor.Core
             }
             EnfluxEditorUtils.SetDefaultTheme();
             GUILayout.EndVertical();
+
+            serializedObject.ApplyModifiedProperties();
         }
     }
 }

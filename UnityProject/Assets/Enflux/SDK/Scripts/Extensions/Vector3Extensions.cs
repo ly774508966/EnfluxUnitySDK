@@ -6,7 +6,7 @@ namespace Enflux.SDK.Extensions
 {
     public static class Vector3Extensions
     {
-        public static Core.DataTypes.ShortVector3 ToEnfluxVector3(this Vector3 v)
+        public static Core.DataTypes.ShortVector3 ToShortVector3(this Vector3 v)
         {
             return new Core.DataTypes.ShortVector3
             {

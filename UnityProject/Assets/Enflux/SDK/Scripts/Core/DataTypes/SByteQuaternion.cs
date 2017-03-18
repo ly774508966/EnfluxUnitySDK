@@ -14,6 +14,7 @@ namespace Enflux.SDK.Core.DataTypes
         public sbyte Y;
         public sbyte Z;
 
+
         public override string ToString()
         {
             return string.Format("({0}, {1}, {2}, {3})", W, X, Y, Z);

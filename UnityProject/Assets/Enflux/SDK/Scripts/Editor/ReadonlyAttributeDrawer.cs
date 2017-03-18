@@ -1,9 +1,11 @@
+// Copyright (c) 2017 Enflux Inc.
+// By downloading, accessing or using this SDK, you signify that you have read, understood and agree to the terms and conditions of the End User License Agreement located at: https://www.getenflux.com/pages/sdk-eula
 #if UNITY_EDITOR
+using Enflux.SDK.Attributes;
 using UnityEditor;
 using UnityEngine;
-using Enflux.Attributes;
 
-namespace EnfluxVR.Editor
+namespace Enflux.SDK.Editor
 {
     [CustomPropertyDrawer(typeof(ReadonlyAttribute))]
     public class ReadonlyAttributeDrawer : PropertyDrawer 

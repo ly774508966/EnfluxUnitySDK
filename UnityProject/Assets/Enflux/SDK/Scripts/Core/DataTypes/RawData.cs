@@ -24,6 +24,7 @@ namespace Enflux.SDK.Core.DataTypes
             get { return Timestamp & 0x0FFF; }
         }
 
+
         public override string ToString()
         {
             return string.Format("(Sensor: {0}, Timestamp: {1}, Accel: {2}, Gyro: {2}, Mag: {3})",

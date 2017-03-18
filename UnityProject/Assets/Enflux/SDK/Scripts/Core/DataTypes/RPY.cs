@@ -17,12 +17,6 @@ namespace Enflux.SDK.Core.DataTypes
         public float Pitch { get; private set; }
         public float Yaw { get; private set; }
 
-        public RPY(float roll, float pitch, float yaw)
-        {
-            Roll = roll;
-            Pitch = pitch;
-            Yaw = yaw;
-        }
 
         public bool IsIdentity
         {
@@ -32,6 +26,14 @@ namespace Enflux.SDK.Core.DataTypes
                        Mathf.Approximately(Pitch, 0.0f) &&
                        Mathf.Approximately(Yaw, 0.0f);
             }
+        }
+
+
+        public RPY(float roll, float pitch, float yaw)
+        {
+            Roll = roll;
+            Pitch = pitch;
+            Yaw = yaw;
         }
 
         public class ModuleAngles
@@ -51,27 +53,27 @@ namespace Enflux.SDK.Core.DataTypes
                 RightLower = rightLower;
             }
 
-            public void ApplyUpperAnglesTo(HumanoidAngles<UnityEngine.Vector3> angles)
+            public void ApplyUpperAnglesTo(HumanoidAngles<Vector3> angles)
             {
-                var chest = new UnityEngine.Vector3(Center.Roll, Center.Pitch, Center.Yaw)*Mathf.Rad2Deg;
-                var leftUpperArm = new UnityEngine.Vector3(LeftUpper.Roll, LeftUpper.Pitch, LeftUpper.Yaw)*Mathf.Rad2Deg;
-                var leftLowerArm = new UnityEngine.Vector3(LeftLower.Roll, LeftLower.Pitch, LeftLower.Yaw)*Mathf.Rad2Deg;
-                var rightUpperArm = new UnityEngine.Vector3(RightUpper.Roll, RightUpper.Pitch, RightUpper.Yaw)*
+                var chest = new Vector3(Center.Roll, Center.Pitch, Center.Yaw) * Mathf.Rad2Deg;
+                var leftUpperArm = new Vector3(LeftUpper.Roll, LeftUpper.Pitch, LeftUpper.Yaw) * Mathf.Rad2Deg;
+                var leftLowerArm = new Vector3(LeftLower.Roll, LeftLower.Pitch, LeftLower.Yaw) * Mathf.Rad2Deg;
+                var rightUpperArm = new Vector3(RightUpper.Roll, RightUpper.Pitch, RightUpper.Yaw) *
                                     Mathf.Rad2Deg;
-                var rightLowerArm = new UnityEngine.Vector3(RightLower.Roll, RightLower.Pitch, RightLower.Yaw)*
+                var rightLowerArm = new Vector3(RightLower.Roll, RightLower.Pitch, RightLower.Yaw) *
                                     Mathf.Rad2Deg;
 
                 angles.SetUpperBodyAngles(chest, leftUpperArm, leftLowerArm, rightUpperArm, rightLowerArm);
             }
 
-            public void ApplyLowerAnglesTo(HumanoidAngles<UnityEngine.Vector3> angles)
+            public void ApplyLowerAnglesTo(HumanoidAngles<Vector3> angles)
             {
-                var waist = new UnityEngine.Vector3(Center.Roll, Center.Pitch, Center.Yaw)*Mathf.Rad2Deg;
-                var leftUpperLeg = new UnityEngine.Vector3(LeftUpper.Roll, LeftUpper.Pitch, LeftUpper.Yaw)*Mathf.Rad2Deg;
-                var leftLowerLeg = new UnityEngine.Vector3(LeftLower.Roll, LeftLower.Pitch, LeftLower.Yaw)*Mathf.Rad2Deg;
-                var rightUpperLeg = new UnityEngine.Vector3(RightUpper.Roll, RightUpper.Pitch, RightUpper.Yaw)*
+                var waist = new Vector3(Center.Roll, Center.Pitch, Center.Yaw) * Mathf.Rad2Deg;
+                var leftUpperLeg = new Vector3(LeftUpper.Roll, LeftUpper.Pitch, LeftUpper.Yaw) * Mathf.Rad2Deg;
+                var leftLowerLeg = new Vector3(LeftLower.Roll, LeftLower.Pitch, LeftLower.Yaw) * Mathf.Rad2Deg;
+                var rightUpperLeg = new Vector3(RightUpper.Roll, RightUpper.Pitch, RightUpper.Yaw) *
                                     Mathf.Rad2Deg;
-                var rightLowerLeg = new UnityEngine.Vector3(RightLower.Roll, RightLower.Pitch, RightLower.Yaw)*
+                var rightLowerLeg = new Vector3(RightLower.Roll, RightLower.Pitch, RightLower.Yaw) *
                                     Mathf.Rad2Deg;
 
                 angles.SetLowerBodyAngles(waist, leftUpperLeg, leftLowerLeg, rightUpperLeg, rightLowerLeg);
@@ -93,6 +95,7 @@ namespace Enflux.SDK.Core.DataTypes
         public static ModuleAngles ParseDataForOrientationAngles(byte[] bleData)
         {
             const float bleScaling = 325.94932f;
+            // ReSharper disable JoinDeclarationAndInitializer
             short temp;
             float tempRoll, tempPitch, tempYaw;
             RPY postCenter;
@@ -100,132 +103,134 @@ namespace Enflux.SDK.Core.DataTypes
             RPY postLeftLower;
             RPY postRightUpper;
             RPY postRightLower;
+            // ReSharper restore JoinDeclarationAndInitializer
+
             //*********************************
             // Author: Elijah Schuldt
             // Ported: Matt Brown
             //Center
             //*********************************
-            temp = (short)((bleData[3] & 0xE0) << 3);
-            temp |= (short)bleData[0];
+            temp = (short) ((bleData[3] & 0xE0) << 3);
+            temp |= (short) bleData[0];
             if (temp > 1024)
             {
                 temp -= 2048;
             }
-            tempRoll = (float)temp / bleScaling;
-            temp = (short)((bleData[3] & 0x18) << 5);
-            temp |= (short)bleData[1];
+            tempRoll = (float) temp / bleScaling;
+            temp = (short) ((bleData[3] & 0x18) << 5);
+            temp |= (short) bleData[1];
             if (temp > 512)
             {
                 temp -= 1024;
             }
-            tempPitch = (float)temp / bleScaling;
-            temp = (short)((bleData[3] & 0x07) << 8);
-            temp |= (short)bleData[2];
+            tempPitch = (float) temp / bleScaling;
+            temp = (short) ((bleData[3] & 0x07) << 8);
+            temp |= (short) bleData[2];
             if (temp > 1024)
             {
                 temp -= 2048;
             }
-            tempYaw = (float)temp / bleScaling;
+            tempYaw = (float) temp / bleScaling;
             postCenter = new RPY(tempRoll, tempPitch, tempYaw);
             //*********************************
             //leftUpper
             //*********************************
-            temp = (short)((bleData[7] & 0xE0) << 3);
-            temp |= (short)bleData[4];
+            temp = (short) ((bleData[7] & 0xE0) << 3);
+            temp |= (short) bleData[4];
             if (temp > 1024)
             {
                 temp -= 2048;
             }
-            tempRoll = (float)temp / bleScaling;
-            temp = (short)((bleData[7] & 0x18) << 5);
-            temp |= (short)bleData[5];
+            tempRoll = (float) temp / bleScaling;
+            temp = (short) ((bleData[7] & 0x18) << 5);
+            temp |= (short) bleData[5];
             if (temp > 512)
             {
                 temp -= 1024;
             }
-            tempPitch = (float)temp / bleScaling;
-            temp = (short)((bleData[7] & 0x07) << 8);
-            temp |= (short)bleData[6];
+            tempPitch = (float) temp / bleScaling;
+            temp = (short) ((bleData[7] & 0x07) << 8);
+            temp |= (short) bleData[6];
             if (temp > 1024)
             {
                 temp -= 2048;
             }
-            tempYaw = (float)temp / bleScaling;
+            tempYaw = (float) temp / bleScaling;
             postLeftUpper = new RPY(tempRoll, tempPitch, tempYaw);
             //*********************************
             //leftLower
             //*********************************
-            temp = (short)((bleData[11] & 0xE0) << 3);
-            temp |= (short)bleData[8];
+            temp = (short) ((bleData[11] & 0xE0) << 3);
+            temp |= (short) bleData[8];
             if (temp > 1024)
             {
                 temp -= 2048;
             }
-            tempRoll = (float)temp / bleScaling;
-            temp = (short)((bleData[11] & 0x18) << 5);
-            temp |= (short)bleData[9];
+            tempRoll = (float) temp / bleScaling;
+            temp = (short) ((bleData[11] & 0x18) << 5);
+            temp |= (short) bleData[9];
             if (temp > 512)
             {
                 temp -= 1024;
             }
-            tempPitch = (float)temp / bleScaling;
-            temp = (short)((bleData[11] & 0x07) << 8);
-            temp |= (short)bleData[10];
+            tempPitch = (float) temp / bleScaling;
+            temp = (short) ((bleData[11] & 0x07) << 8);
+            temp |= (short) bleData[10];
             if (temp > 1024)
             {
                 temp -= 2048;
             }
-            tempYaw = (float)temp / bleScaling;
+            tempYaw = (float) temp / bleScaling;
             postLeftLower = new RPY(tempRoll, tempPitch, tempYaw);
             //*********************************
             //rightUpper
             //*********************************
-            temp = (short)((bleData[15] & 0xE0) << 3);
-            temp |= (short)bleData[12];
+            temp = (short) ((bleData[15] & 0xE0) << 3);
+            temp |= (short) bleData[12];
             if (temp > 1024)
             {
                 temp -= 2048;
             }
-            tempRoll = (float)temp / bleScaling;
-            temp = (short)((bleData[15] & 0x18) << 5);
-            temp |= (short)bleData[13];
+            tempRoll = (float) temp / bleScaling;
+            temp = (short) ((bleData[15] & 0x18) << 5);
+            temp |= (short) bleData[13];
             if (temp > 512)
             {
                 temp -= 1024;
             }
-            tempPitch = (float)temp / bleScaling;
-            temp = (short)((bleData[15] & 0x07) << 8);
-            temp |= (short)bleData[14];
+            tempPitch = (float) temp / bleScaling;
+            temp = (short) ((bleData[15] & 0x07) << 8);
+            temp |= (short) bleData[14];
             if (temp > 1024)
             {
                 temp -= 2048;
             }
-            tempYaw = (float)temp / bleScaling;
+            tempYaw = (float) temp / bleScaling;
             postRightUpper = new RPY(tempRoll, tempPitch, tempYaw);
             //*********************************
             //rightLower
             //*********************************
-            temp = (short)((bleData[19] & 0xE0) << 3);
-            temp |= (short)bleData[16];
+            temp = (short) ((bleData[19] & 0xE0) << 3);
+            temp |= (short) bleData[16];
             if (temp > 1024)
             {
                 temp -= 2048;
             }
-            tempRoll = (float)temp / bleScaling;
-            temp = (short)((bleData[19] & 0x18) << 5);
-            temp |= (short)bleData[17];
+            tempRoll = (float) temp / bleScaling;
+            temp = (short) ((bleData[19] & 0x18) << 5);
+            temp |= (short) bleData[17];
             if (temp > 512)
             {
                 temp -= 1024;
             }
-            tempPitch = (float)temp / bleScaling;
-            temp = (short)((bleData[19] & 0x07) << 8);
-            temp |= (short)bleData[18];
+            tempPitch = (float) temp / bleScaling;
+            temp = (short) ((bleData[19] & 0x07) << 8);
+            temp |= (short) bleData[18];
             if (temp > 1024)
             {
                 temp -= 2048;
             }
-            tempYaw = (float)temp / bleScaling;
+            tempYaw = (float) temp / bleScaling;
             postRightLower = new RPY(tempRoll, tempPitch, tempYaw);
             var result = new ModuleAngles(
                 postCenter,

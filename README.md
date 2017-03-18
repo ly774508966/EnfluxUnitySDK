@@ -6,8 +6,9 @@ This is the Enflux Unity SDK with support for VR, animation recording, and playb
 ## Unity SDK
 ------
 * Our SDK is built for Unity 5.4.0f3 and newer.
-* Both the SDK and applications created with it require Windows 10.
-* Check the [releases tab](https://github.com/Enflux/EnfluxUnitySDK/releases) for the most recent Unity package of the SDK. You can also directly clone this repository and open the contained project.
+* Both the SDK and applications created with it require Windows 10. 
+* C# programming knowledge is required to use the SDK.
+* Check the [releases tab](https://github.com/Enflux/EnfluxUnitySDK/releases) for the most recent .unitypackage of the SDK. You can also directly clone this repository and open the contained project.
 
 &nbsp;
 ## Instructions For Setup
@@ -26,7 +27,7 @@ This contains all the info you need to get started with Enflux clothing. This in
 ### Unity SDK Guide
 http://bit.ly/2mKqIjd
 
-This contains all the info you need to use the Unity SDK. This includes:
+This contains all the info you need to use the Unity C# SDK. This includes:
 * An overview over the major components of the SDK
 * Tutorials to build the example scenes
 * A scripting reference

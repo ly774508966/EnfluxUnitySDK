@@ -4,7 +4,7 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Runtime.InteropServices;
-using Enflux.Attributes;
+using Enflux.SDK.Attributes;
 using Enflux.SDK.Core;
 using Enflux.SDK.Core.DataTypes;
 using Enflux.SDK.Extensions;

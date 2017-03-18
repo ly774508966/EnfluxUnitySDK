@@ -1,19 +1,19 @@
 ﻿// Copyright (c) 2017 Enflux Inc.
 // By downloading, accessing or using this SDK, you signify that you have read, understood and agree to the terms and conditions of the End User License Agreement located at: https://www.getenflux.com/pages/sdk-eula
 using System;
+using Enflux.SDK.Attributes;
 using UnityEngine;
 
 namespace Enflux.SDK.Core
 {
     public abstract class EnfluxSuitStream : MonoBehaviour
     {
+        [SerializeField, Readonly] private DeviceState _shirtState = DeviceState.Disconnected;
+        [SerializeField, Readonly] private DeviceState _pantsState = DeviceState.Disconnected;
+
         private Vector3 _shirtBaseOrientation;
         private Vector3 _pantsBaseOrientation;
-
-        /// <summary>
-        /// The suit's limb angles in absolute real-world coordinates. For example, a rotation's y component of 0 corresponds to a yaw pointing north in real-world coordinates, 180 corresponds to south.
-        /// </summary>
-        public readonly HumanoidAngles<Vector3> AbsoluteAngles = new HumanoidAngles<Vector3>();
+        private readonly HumanoidAngles<Vector3> _absoluteAngles = new HumanoidAngles<Vector3>();
 
         public event Action<StateChange<DeviceState>> ShirtStateChanged;
         public event Action<StateChange<DeviceState>> PantsStateChanged;
@@ -21,6 +21,53 @@ namespace Enflux.SDK.Core
         public event Action<DeviceNotification> PantsReceivedNotification;
         public event Action<DeviceError> ShirtReceivedError;
         public event Action<DeviceError> PantsReceivedError;
+
+
+        public DeviceState ShirtState
+        {
+            get { return _shirtState; }
+            protected set
+            {
+                if (_shirtState == value)
+                {
+                    return;
+                }
+                var previous = _shirtState;
+                _shirtState = value;
+                var handler = ShirtStateChanged;
+                if (handler != null)
+                {
+                    handler.Invoke(new StateChange<DeviceState>(previous, _shirtState));
+                }
+            }
+        }
+
+        public DeviceState PantsState
+        {
+            get { return _pantsState; }
+            protected set
+            {
+                if (_pantsState == value)
+                {
+                    return;
+                }
+                var previous = _pantsState;
+                _pantsState = value;
+                var handler = PantsStateChanged;
+                if (handler != null)
+                {
+                    handler.Invoke(new StateChange<DeviceState>(previous, _pantsState));
+                }
+            }
+        }
+
+        /// <summary>
+        /// The suit's limb angles in absolute real-world coordinates. For example, a rotation's y component of 0 corresponds to a yaw pointing north in real-world coordinates, 180 corresponds to south.
+        /// </summary>
+        public HumanoidAngles<Vector3> AbsoluteAngles
+        {
+            get { return _absoluteAngles; }
+        }
 
         /// <summary>
         /// The base real-world orientation of the core module of the shirt.
@@ -47,24 +94,6 @@ namespace Enflux.SDK.Core
             {
                 _pantsBaseOrientation = value;
                 RaisePantsNotificationEvent(DeviceNotification.ResetOrientation);
-            }
-        }
-
-        protected void ChangeShirtState(StateChange<DeviceState> statusChange)
-        {
-            var handler = ShirtStateChanged;
-            if (handler != null)
-            {
-                handler(statusChange);
-            }
-        }
-
-        protected void ChangePantsState(StateChange<DeviceState> statusChange)
-        {
-            var handler = PantsStateChanged;
-            if (handler != null)
-            {
-                handler(statusChange);
             }
         }
 

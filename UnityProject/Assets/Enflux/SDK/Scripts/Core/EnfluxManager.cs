@@ -1,6 +1,5 @@
 ﻿// Copyright (c) 2017 Enflux Inc.
 // By downloading, accessing or using this SDK, you signify that you have read, understood and agree to the terms and conditions of the End User License Agreement located at: https://www.getenflux.com/pages/sdk-eula
-using Enflux.Attributes;
 using Enflux.SDK.Core.DataTypes;
 using Enflux.SDK.HID;
 using UnityEngine;
@@ -9,56 +8,24 @@ namespace Enflux.SDK.Core
 {
     public class EnfluxManager : EnfluxSuitStream
     {
-        [SerializeField, Readonly] private DeviceState _shirtState = DeviceState.Disconnected;
-        [SerializeField, Readonly] private DeviceState _pantsState = DeviceState.Disconnected;
+        [SerializeField] private bool _connectOnStart;
 
         private readonly EnfluxInterface _interface = new EnfluxInterface();
 
         public bool IsShirtActive
         {
-            get { return _shirtState != DeviceState.Disconnected; }
+            get { return ShirtState != DeviceState.Disconnected; }
         }
 
         public bool ArePantsActive
         {
-            get { return _pantsState != DeviceState.Disconnected; }
+            get { return PantsState != DeviceState.Disconnected; }
         }
 
         public bool IsAnyDeviceActive
         {
             get { return IsShirtActive || ArePantsActive; }
         }
-
-        public DeviceState ShirtState
-        {
-            get { return _shirtState; }
-            private set
-            {
-                if (_shirtState == value)
-                {
-                    return;
-                }
-                var previous = _shirtState;
-                _shirtState = value;
-                ChangeShirtState(new StateChange<DeviceState>(previous, _shirtState));
-            }
-        }
-
-        public DeviceState PantsState
-        {
-            get { return _pantsState; }
-            private set
-            {
-                if (_pantsState == value)
-                {
-                    return;
-                }
-                var previous = _pantsState;
-                _pantsState = value;
-                ChangePantsState(new StateChange<DeviceState>(previous, _pantsState));
-            }
-        }
-
 
         public interface IQueuedEvent
         {
@@ -102,6 +69,14 @@ namespace Enflux.SDK.Core
         {
             _interface.ReceivedShirtStatus -= OnReceivedShirtStatus;
             _interface.ReceivedPantsStatus -= OnReceivedPantsStatus;
+        }
+
+        private void Start()
+        {
+            if (_connectOnStart)
+            {
+                Connect(EnfluxDevice.All);
+            }
         }
 
         private void OnApplicationQuit()
@@ -203,7 +178,7 @@ namespace Enflux.SDK.Core
 
             if (IsShirtActive)
             {
-                var upperModuleAngles = RPY.ParseDataForOrientationAngles(EnfluxInterface.ShirtRPY);
+                var upperModuleAngles = RPY.ParseDataForOrientationAngles(EnfluxInterface.ShirtRpy);
                 if (ShirtState == DeviceState.Initializing && upperModuleAngles.IsInitialized)
                 {
                     ShirtState = DeviceState.Streaming;
@@ -217,7 +192,7 @@ namespace Enflux.SDK.Core
             }
             if (ArePantsActive)
             {
-                var lowerModuleAngles = RPY.ParseDataForOrientationAngles(EnfluxInterface.PantsRPY);
+                var lowerModuleAngles = RPY.ParseDataForOrientationAngles(EnfluxInterface.PantsRpy);
                 if (PantsState == DeviceState.Initializing && lowerModuleAngles.IsInitialized)
                 {
                     PantsState = DeviceState.Streaming;

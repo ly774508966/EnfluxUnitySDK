@@ -26,8 +26,8 @@ namespace Enflux.SDK.HID
 
 
         // Temporary variables, will be removed in future release!
-        public static byte[] PantsRPY = new byte[20];
-        public static byte[] ShirtRPY = new byte[20];
+        public static byte[] PantsRpy = new byte[20];
+        public static byte[] ShirtRpy = new byte[20];
 
 
         public void StartStreaming(EnfluxDevice deviceType)
@@ -93,13 +93,11 @@ namespace Enflux.SDK.HID
 
             if (ShirtStatus == StreamingStatus.Connected)
             {
-                //LoadRotations(DeviceType.Shirt, ShirtRotations);
-                RPY.LoadRotations(EnfluxDevice.Shirt, ShirtRPY);
+                RPY.LoadRotations(EnfluxDevice.Shirt, ShirtRpy);
             }
             if (PantsStatus == StreamingStatus.Connected)
             {
-                //LoadRotations(DeviceType.Pants, PantsRotations);
-                RPY.LoadRotations(EnfluxDevice.Pants, PantsRPY);
+                RPY.LoadRotations(EnfluxDevice.Pants, PantsRpy);
             }
 #endif
         }

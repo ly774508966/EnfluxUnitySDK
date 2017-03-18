@@ -39,10 +39,7 @@ namespace Enflux.Examples.UI
         public float ResetOrientationTime
         {
             get { return _resetOrientationTime; }
-            set
-            {
-                _resetOrientationTime = Mathf.Max(0f, value);
-            }
+            set { _resetOrientationTime = Mathf.Max(0f, value); }
         }
 
 
@@ -228,7 +225,7 @@ namespace Enflux.Examples.UI
             _calibrateShirtButton.interactable = _enfluxManager.ShirtState == DeviceState.Disconnected;
             _calibratePantsButton.interactable = _enfluxManager.PantsState == DeviceState.Disconnected;
             _resetOrientationButton.interactable = _enfluxManager.ShirtState == DeviceState.Streaming ||
-                _enfluxManager.PantsState == DeviceState.Streaming;
+                                                   _enfluxManager.PantsState == DeviceState.Streaming;
         }
 
         private void DoResetOrientationAnimation(bool doCountdown = true)

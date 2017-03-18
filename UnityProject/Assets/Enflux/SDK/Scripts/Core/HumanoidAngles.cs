@@ -31,7 +31,11 @@ namespace Enflux.SDK.Core
             get { return _chest; }
             set
             {
-                _chest = value; 
+                if (_chest.Equals(value))
+                {
+                    return;
+                }
+                _chest = value;
                 RaiseUpperBodyAnglesChangedEvent();
             }
         }
@@ -44,6 +48,10 @@ namespace Enflux.SDK.Core
             get { return _leftUpperArm; }
             set
             {
+                if (_leftUpperArm.Equals(value))
+                {
+                    return;
+                }
                 _leftUpperArm = value;
                 RaiseUpperBodyAnglesChangedEvent();
             }
@@ -57,6 +65,10 @@ namespace Enflux.SDK.Core
             get { return _leftLowerArm; }
             set
             {
+                if (_leftLowerArm.Equals(value))
+                {
+                    return;
+                }
                 _leftLowerArm = value;
                 RaiseUpperBodyAnglesChangedEvent();
             }
@@ -70,6 +82,10 @@ namespace Enflux.SDK.Core
             get { return _rightUpperArm; }
             set
             {
+                if (_rightUpperArm.Equals(value))
+                {
+                    return;
+                }
                 _rightUpperArm = value;
                 RaiseUpperBodyAnglesChangedEvent();
             }
@@ -83,6 +99,10 @@ namespace Enflux.SDK.Core
             get { return _rightLowerArm; }
             set
             {
+                if (_rightLowerArm.Equals(value))
+                {
+                    return;
+                }
                 _rightLowerArm = value;
                 RaiseUpperBodyAnglesChangedEvent();
             }
@@ -96,6 +116,10 @@ namespace Enflux.SDK.Core
             get { return _waist; }
             set
             {
+                if (_waist.Equals(value))
+                {
+                    return;
+                }
                 _waist = value;
                 RaiseLowerBodyAnglesChangedEvent();
             }
@@ -109,6 +133,10 @@ namespace Enflux.SDK.Core
             get { return _leftUpperLeg; }
             set
             {
+                if (_leftUpperLeg.Equals(value))
+                {
+                    return;
+                }
                 _leftUpperArm = value;
                 RaiseLowerBodyAnglesChangedEvent();
             }
@@ -122,6 +150,10 @@ namespace Enflux.SDK.Core
             get { return _leftLowerLeg; }
             set
             {
+                if (_leftLowerLeg.Equals(value))
+                {
+                    return;
+                }
                 _leftLowerLeg = value;
                 RaiseLowerBodyAnglesChangedEvent();
             }
@@ -135,6 +167,10 @@ namespace Enflux.SDK.Core
             get { return _rightUpperLeg; }
             set
             {
+                if (_rightUpperLeg.Equals(value))
+                {
+                    return;
+                }
                 _rightUpperLeg = value;
                 RaiseLowerBodyAnglesChangedEvent();
             }
@@ -148,6 +184,10 @@ namespace Enflux.SDK.Core
             get { return _rightLowerLeg; }
             set
             {
+                if (_rightLowerLeg.Equals(value))
+                {
+                    return;
+                }
                 _rightLowerLeg = value;
                 RaiseLowerBodyAnglesChangedEvent();
             }
@@ -159,6 +199,14 @@ namespace Enflux.SDK.Core
         /// <param name="upperBodyAngles"></param>
         public void SetUpperBodyAngles(HumanoidAngles<T> upperBodyAngles)
         {
+            if (_waist.Equals(upperBodyAngles.Waist) &&
+                _leftUpperArm.Equals(upperBodyAngles.LeftUpperArm) &&
+                _leftLowerArm.Equals(upperBodyAngles.LeftLowerArm) &&
+                _rightUpperArm.Equals(upperBodyAngles.RightUpperArm) &&
+                _rightLowerArm.Equals(upperBodyAngles.RightLowerArm))
+            {
+                return;
+            }
             _chest = upperBodyAngles._chest;
             _leftUpperArm = upperBodyAngles._leftUpperArm;
             _leftLowerArm = upperBodyAngles._leftLowerArm;
@@ -177,12 +225,20 @@ namespace Enflux.SDK.Core
         /// <param name="rightUpperArm"></param>
         /// <param name="rightLowerArm"></param>
         public void SetUpperBodyAngles(
-            T chest, 
-            T leftUpperArm, 
+            T chest,
+            T leftUpperArm,
             T leftLowerArm,
-            T rightUpperArm, 
+            T rightUpperArm,
             T rightLowerArm)
         {
+            if (_chest.Equals(chest) &&
+                _leftUpperArm.Equals(leftUpperArm) &&
+                _leftLowerArm.Equals(leftLowerArm) &&
+                _rightUpperArm.Equals(rightUpperArm) &&
+                _rightLowerArm.Equals(rightLowerArm))
+            {
+                return;
+            }
             _chest = chest;
             _leftUpperArm = leftUpperArm;
             _leftLowerArm = leftLowerArm;
@@ -198,6 +254,14 @@ namespace Enflux.SDK.Core
         /// <param name="lowerBodyAngles"></param>
         public void SetLowerBodyAngles(HumanoidAngles<T> lowerBodyAngles)
         {
+            if (_waist.Equals(lowerBodyAngles.Waist) &&
+                _leftUpperLeg.Equals(lowerBodyAngles.LeftUpperLeg) &&
+                _leftLowerLeg.Equals(lowerBodyAngles.LeftLowerLeg) &&
+                _rightUpperLeg.Equals(lowerBodyAngles.RightUpperLeg) &&
+                _rightLowerLeg.Equals(lowerBodyAngles.RightLowerLeg))
+            {
+                return;
+            }
             _waist = lowerBodyAngles._waist;
             _leftUpperLeg = lowerBodyAngles._leftUpperLeg;
             _leftLowerLeg = lowerBodyAngles._leftLowerLeg;
@@ -222,6 +286,14 @@ namespace Enflux.SDK.Core
             T rightUpperLeg,
             T rightLowerLeg)
         {
+            if (_waist.Equals(waist) &&
+                _leftUpperLeg.Equals(leftUpperLeg) &&
+                _leftLowerLeg.Equals(leftLowerLeg) &&
+                _rightUpperLeg.Equals(rightUpperLeg) &&
+                _rightLowerLeg.Equals(rightLowerLeg))
+            {
+                return;
+            }
             _waist = waist;
             _leftUpperLeg = leftUpperLeg;
             _leftLowerLeg = leftLowerLeg;
@@ -240,7 +312,6 @@ namespace Enflux.SDK.Core
             SetUpperBodyAngles(fullBodyAngles);
             SetLowerBodyAngles(fullBodyAngles);
         }
-
 
         /// <summary>
         /// Applies angles to the entire body all at once.
@@ -286,7 +357,7 @@ namespace Enflux.SDK.Core
                     LeftLowerLeg,
                     RightUpperLeg,
                     RightLowerLeg
-                    );
+                );
         }
 
         private void RaiseUpperBodyAnglesChangedEvent()

@@ -13,16 +13,17 @@ namespace Enflux.SDK.Core.DataTypes
         public short Y;
         public short Z;
 
-        public override string ToString()
-        {
-            return string.Format("({0}, {1}, {2})", X, Y, Z);
-        }
 
         public ShortVector3(short x, short y, short z)
         {
             X = x;
             Y = y;
             Z = z;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("({0}, {1}, {2})", X, Y, Z);
         }
     }
 }
