@@ -3,7 +3,7 @@
 using System;
 using Enflux.SDK.Attributes;
 using UnityEngine;
-using Enflux.Alignment;
+using Enflux.SDK.Alignment;
 
 namespace Enflux.SDK.Core
 {
