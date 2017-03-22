@@ -26,7 +26,7 @@ namespace Enflux.Examples.UI
         [SerializeField] private Button _calibrateShirtButton;
         [SerializeField] private Button _calibratePantsButton;
         [SerializeField] private Button _resetOrientationButton;
-        [SerializeField] private Button _alignOrientationButton;
+        [SerializeField] private Button _alignSensorsButton;
         [SerializeField] private Button _openBluetoothManagerButton;
         [SerializeField] private Text _shirtStateText;
         [SerializeField] private Text _pantsStateText;
@@ -66,6 +66,7 @@ namespace Enflux.Examples.UI
             _calibrateShirtButton = gameObject.FindChildComponent<Button>("Button_CalibrateShirt");
             _calibratePantsButton = gameObject.FindChildComponent<Button>("Button_CalibratePants");
             _resetOrientationButton = gameObject.FindChildComponent<Button>("Button_ResetOrientation");
+            _alignSensorsButton = gameObject.FindChildComponent<Button>("Button_AlignSensors");
             _openBluetoothManagerButton = gameObject.FindChildComponent<Button>("Button_OpenBluetoothManager");
             _shirtStateText = gameObject.FindChildComponent<Text>("Text_ShirtState");
             _pantsStateText = gameObject.FindChildComponent<Text>("Text_PantsState");
@@ -117,8 +118,8 @@ namespace Enflux.Examples.UI
             _calibrateShirtButton.onClick.AddListener(CalibrateShirtButtonOnClick);
             _calibratePantsButton.onClick.AddListener(CalibratePantsButtonOnClick);
             _resetOrientationButton.onClick.AddListener(ResetOrientationButtonOnClick);
+            _alignSensorsButton.onClick.AddListener(AlignOrientationButtonOnClick);
             _openBluetoothManagerButton.onClick.AddListener(OpenBluetoothManagerButtonOnClick);
-            _alignOrientationButton.onClick.AddListener(AlignOrientationButtonOnClick);
         }
 
         private void UnsubscribeFromEvents()
@@ -138,8 +139,8 @@ namespace Enflux.Examples.UI
             _calibrateShirtButton.onClick.RemoveListener(CalibrateShirtButtonOnClick);
             _calibratePantsButton.onClick.RemoveListener(CalibratePantsButtonOnClick);
             _resetOrientationButton.onClick.RemoveListener(ResetOrientationButtonOnClick);
+            _alignSensorsButton.onClick.RemoveListener(AlignOrientationButtonOnClick);
             _openBluetoothManagerButton.onClick.RemoveListener(OpenBluetoothManagerButtonOnClick);
-            _alignOrientationButton.onClick.RemoveListener(AlignOrientationButtonOnClick);
         }
 
         private void EnfluxManagerOnShirtStateChanged(StateChange<DeviceState> stateChange)
@@ -216,14 +217,14 @@ namespace Enflux.Examples.UI
             DoResetOrientationAnimation();
         }
 
-        private void OpenBluetoothManagerButtonOnClick()
-        {
-            BluetoothUtils.LaunchBluetoothManager();
-        }
-
         private void AlignOrientationButtonOnClick()
         {
             DoSensorAlignment();
+        }
+
+        private void OpenBluetoothManagerButtonOnClick()
+        {
+            BluetoothUtils.LaunchBluetoothManager();
         }
 
         private void UpdateUi()
@@ -242,6 +243,8 @@ namespace Enflux.Examples.UI
             _calibratePantsButton.interactable = _enfluxManager.PantsState == DeviceState.Disconnected;
             _resetOrientationButton.interactable = _enfluxManager.ShirtState == DeviceState.Streaming ||
                                                    _enfluxManager.PantsState == DeviceState.Streaming;
+            _alignSensorsButton.interactable = _enfluxManager.ShirtState == DeviceState.Streaming ||
+                                               _enfluxManager.PantsState == DeviceState.Streaming;
         }
 
         // Probably needs some error handling here, shouldn't
@@ -260,7 +263,7 @@ namespace Enflux.Examples.UI
         private IEnumerator Co_DoSensorAlignment(bool doCountdown)
         {
             var time = AlignOrientationTime;
-            bool aligning = false;
+            var aligning = false;
             if (doCountdown) 
             {
                 while (time > 0.0f)

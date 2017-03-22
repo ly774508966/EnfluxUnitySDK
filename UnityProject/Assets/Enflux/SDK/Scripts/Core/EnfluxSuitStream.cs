@@ -4,6 +4,7 @@ using System;
 using Enflux.SDK.Attributes;
 using UnityEngine;
 using Enflux.SDK.Alignment;
+using Enflux.SDK.Utils;
 
 namespace Enflux.SDK.Core
 {
@@ -290,7 +291,7 @@ namespace Enflux.SDK.Core
             }
             else
             {
-                _chestInitialQuat = Math3d.AverageQuaternion(
+                _chestInitialQuat = QuaternionUtils.AverageQuaternion(
                     ref _upperModuleQuatComponents,
                     _chestImu,
                     _firstUpperModuleQuat,
@@ -315,7 +316,7 @@ namespace Enflux.SDK.Core
             }
             else
             {
-                _waistInitialQuat = Math3d.AverageQuaternion(
+                _waistInitialQuat = QuaternionUtils.AverageQuaternion(
                     ref _lowerModuleQuatComponents,
                     _waistImu,
                     _firstLowerModuleQuat,
