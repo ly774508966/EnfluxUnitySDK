@@ -3719,7 +3719,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _humanoid: {fileID: 114953429738589958}
-  _chest: {fileID: 4000011779977616}
+  _chest: {fileID: 4000013060380504}
   _leftUpperArm: {fileID: 4000012373445408}
   _leftLowerArm: {fileID: 4000011326694730}
   _rightUpperArm: {fileID: 4000013767668578}

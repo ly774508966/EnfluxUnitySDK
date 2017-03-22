@@ -26,12 +26,15 @@ namespace Enflux.Examples.UI
         [SerializeField] private Button _calibrateShirtButton;
         [SerializeField] private Button _calibratePantsButton;
         [SerializeField] private Button _resetOrientationButton;
+        [SerializeField] private Button _alignOrientationButton;
         [SerializeField] private Button _openBluetoothManagerButton;
         [SerializeField] private Text _shirtStateText;
         [SerializeField] private Text _pantsStateText;
         [SerializeField] private Text _resetOrientationText;
+        [SerializeField] private Text _alignOrientationText;
 
         [SerializeField] private float _resetOrientationTime = 4.0f;
+        [SerializeField] private float _alignOrientationTime = 10.0f;
 
         private IEnumerator _co_resetTimer;
 
@@ -42,6 +45,11 @@ namespace Enflux.Examples.UI
             set { _resetOrientationTime = Mathf.Max(0f, value); }
         }
 
+        public float AlignOrientationTime
+        {
+            get { return _alignOrientationTime; }
+            set { _alignOrientationTime = Mathf.Max(0f, value); }
+        }
 
         private void Reset()
         {
@@ -62,6 +70,7 @@ namespace Enflux.Examples.UI
             _shirtStateText = gameObject.FindChildComponent<Text>("Text_ShirtState");
             _pantsStateText = gameObject.FindChildComponent<Text>("Text_PantsState");
             _resetOrientationText = gameObject.FindChildComponent<Text>("Text_ResetOrientation");
+            _alignOrientationText = gameObject.FindChildComponent<Text>("Text_AlignOrientation");
         }
 
         private void OnValidate()
@@ -109,6 +118,7 @@ namespace Enflux.Examples.UI
             _calibratePantsButton.onClick.AddListener(CalibratePantsButtonOnClick);
             _resetOrientationButton.onClick.AddListener(ResetOrientationButtonOnClick);
             _openBluetoothManagerButton.onClick.AddListener(OpenBluetoothManagerButtonOnClick);
+            _alignOrientationButton.onClick.AddListener(AlignOrientationButtonOnClick);
         }
 
         private void UnsubscribeFromEvents()
@@ -129,6 +139,7 @@ namespace Enflux.Examples.UI
             _calibratePantsButton.onClick.RemoveListener(CalibratePantsButtonOnClick);
             _resetOrientationButton.onClick.RemoveListener(ResetOrientationButtonOnClick);
             _openBluetoothManagerButton.onClick.RemoveListener(OpenBluetoothManagerButtonOnClick);
+            _alignOrientationButton.onClick.RemoveListener(AlignOrientationButtonOnClick);
         }
 
         private void EnfluxManagerOnShirtStateChanged(StateChange<DeviceState> stateChange)
@@ -210,6 +221,11 @@ namespace Enflux.Examples.UI
             BluetoothUtils.LaunchBluetoothManager();
         }
 
+        private void AlignOrientationButtonOnClick()
+        {
+            DoSensorAlignment();
+        }
+
         private void UpdateUi()
         {
             _connectHeader.gameObject.SetActive(!_enfluxManager.IsShirtActive || !_enfluxManager.ArePantsActive);
@@ -226,6 +242,44 @@ namespace Enflux.Examples.UI
             _calibratePantsButton.interactable = _enfluxManager.PantsState == DeviceState.Disconnected;
             _resetOrientationButton.interactable = _enfluxManager.ShirtState == DeviceState.Streaming ||
                                                    _enfluxManager.PantsState == DeviceState.Streaming;
+        }
+
+        // Probably needs some error handling here, shouldn't
+        // allow sensors alignment if resetting 
+        private void DoSensorAlignment(bool doCountdown = true)
+        {
+            if (_co_resetTimer != null)
+            {
+                StopCoroutine(_co_resetTimer);
+            }
+            _co_resetTimer = Co_DoSensorAlignment(doCountdown);
+            StartCoroutine(_co_resetTimer);
+        }
+
+        // need data to flow to a calculation during this time
+        private IEnumerator Co_DoSensorAlignment(bool doCountdown)
+        {
+            var time = AlignOrientationTime;
+            bool aligning = false;
+            if (doCountdown) 
+            {
+                while (time > 0.0f)
+                {
+                    if (time <= 5.0f && !aligning)
+                    {
+                        aligning = !aligning;
+                        _enfluxManager.AlignFullBodySensors();
+                    }
+                    _alignOrientationText.text = string.Format("Aligning in {0:0.0}...", time);
+                    yield return null;
+                    time -= Time.deltaTime;
+                }
+            }
+            _enfluxManager.AlignFullBodySensors();
+            _alignOrientationText.text = "Aligned!";
+            yield return new WaitForSeconds(1.0f);
+            _alignOrientationText.text = "Align Sensors";
+            _co_resetTimer = null;
         }
 
         private void DoResetOrientationAnimation(bool doCountdown = true)

@@ -3,6 +3,7 @@
 using System;
 using Enflux.SDK.Attributes;
 using UnityEngine;
+using Enflux.Alignment;
 
 namespace Enflux.SDK.Core
 {
@@ -26,6 +27,80 @@ namespace Enflux.SDK.Core
         public event Action<DeviceError> ShirtReceivedError;
         public event Action<DeviceError> PantsReceivedError;
 
+
+        #region alignmentvars
+        private readonly ImuOrientations _imuOrientation = new ImuOrientations();
+        private SensorAlignment _sensorAlignment = new SensorAlignment();
+
+        private bool _aligningUpper = false;
+        private bool _aligningLower = false;
+        private Vector4 upperModuleQuatComponents;
+        private Vector4 lowerModuleQuatComponents;
+        private Quaternion chestInitialQuat;
+        private Quaternion waistInitialQuat;
+
+        private Quaternion chest_imu;
+        private Quaternion leftUpperArm_imu;
+        private Quaternion leftLowerArm_imu;
+        private Quaternion rightUpperArm_imu;
+        private Quaternion rightLowerArm_imu;
+
+        private Quaternion waist_imu;
+        private Quaternion leftUpperLeg_imu;
+        private Quaternion leftLowerLeg_imu;
+        private Quaternion rightUpperLeg_imu;
+        private Quaternion rightLowerLeg_imu;
+
+        private Quaternion firstUpperModuleQuaternion;
+        private bool hasFirstUpperModQuaternion = false;
+        private int upperModuleQuatCounter = 0;
+        private Quaternion firstLowerModuleQuaternion;
+        private bool hasFirstLowerModQuaternion = false;
+        private int lowerModuleQuatCounter = 0;
+
+        public Quaternion chestCorrection
+        {
+            get { return _sensorAlignment.chestCorrection; }
+        }
+        public Quaternion leftUpperArmCorrection
+        {
+            get { return _sensorAlignment.leftUpperArmCorrection; }
+        }
+        public Quaternion leftLowerArmCorrection
+        {
+            get { return _sensorAlignment.leftLowerArmCorrection; }
+        }
+        public Quaternion rightUpperArmCorrection
+        {
+            get { return _sensorAlignment.rightUpperArmCorrection; }
+        }
+        public Quaternion rightLowerArmCorrection
+        {
+            get { return _sensorAlignment.rightLowerArmCorrection; }
+        }
+        public Quaternion waistCorrection
+        {
+            get { return _sensorAlignment.waistCorrection; }
+        }
+        public Quaternion leftUpperLegCorrection
+        {
+            get { return _sensorAlignment.leftUpperLegCorrection; }
+        }
+        public Quaternion leftLowerLegCorrection
+        {
+            get { return _sensorAlignment.leftLowerLegCorrection; }
+        }
+        public Quaternion rightUpperLegCorrection
+        {
+            get { return _sensorAlignment.rightUpperLegCorrection; }
+        }
+
+        public Quaternion rightLowerLegCorrection
+        {
+            get { return _sensorAlignment.rightLowerLegCorrection; }
+        }
+
+        #endregion
 
         public DeviceState ShirtState
         {
@@ -135,6 +210,121 @@ namespace Enflux.SDK.Core
             {
                 handler(pantsError);
             }
+        }
+
+        private void ShirtAlignmentBase()
+        {
+            if (!_aligningUpper)
+            {
+                hasFirstUpperModQuaternion = false;
+                upperModuleQuatComponents = new Vector4();
+                upperModuleQuatCounter = 0;
+                chestInitialQuat = new Quaternion();
+                firstUpperModuleQuaternion = new Quaternion();
+                AbsoluteAngles.UpperBodyAnglesChanged += OnUpperSensorFrame;
+            }
+            else
+            {
+                AbsoluteAngles.UpperBodyAnglesChanged -= OnUpperSensorFrame;
+                _sensorAlignment.UpperBodyAlignment(
+                    chestInitialQuat,
+                    chest_imu,
+                    leftUpperArm_imu,
+                    leftLowerArm_imu,
+                    rightUpperArm_imu,
+                    rightLowerArm_imu);
+            }
+            _aligningUpper = !_aligningUpper;
+        }
+
+        private void PantsAlignmentBase()
+        {
+            if (!_aligningLower)
+            {
+                hasFirstLowerModQuaternion = false;
+                lowerModuleQuatComponents = new Vector4();
+                lowerModuleQuatCounter = 0;
+                waistInitialQuat = new Quaternion();
+                firstLowerModuleQuaternion = new Quaternion();
+                AbsoluteAngles.LowerBodyAnglesChanged += OnLowerSensorFrame;
+            }
+            else
+            {
+                AbsoluteAngles.LowerBodyAnglesChanged -= OnLowerSensorFrame;
+                _sensorAlignment.LowerBodyAlignment(
+                    waistInitialQuat,
+                    waist_imu,
+                    leftUpperLeg_imu,
+                    leftLowerLeg_imu,
+                    rightUpperLeg_imu,
+                    rightLowerLeg_imu);
+            }
+            _aligningLower = !_aligningLower;
+        }
+
+        private void OnUpperSensorFrame(HumanoidAngles<Vector3> absoluteAngle)
+        {
+            chest_imu = _imuOrientation.BaseOrientation(absoluteAngle.Chest);
+            leftUpperArm_imu = _imuOrientation.LeftOrientation(absoluteAngle.LeftUpperArm);
+            leftLowerArm_imu = _imuOrientation.LeftOrientation(absoluteAngle.LeftLowerArm);
+            rightUpperArm_imu = _imuOrientation.RightOrientation(absoluteAngle.RightUpperArm);
+            rightLowerArm_imu = _imuOrientation.RightOrientation(absoluteAngle.RightLowerArm);
+            if (!hasFirstUpperModQuaternion)
+            {
+                firstUpperModuleQuaternion = chest_imu;
+                hasFirstUpperModQuaternion = !hasFirstUpperModQuaternion;
+                upperModuleQuatCounter++;
+            }
+            else
+            {
+                chestInitialQuat = Math3d.AverageQuaternion(
+                    ref upperModuleQuatComponents,
+                    chest_imu,
+                    firstUpperModuleQuaternion,
+                    upperModuleQuatCounter);
+
+                upperModuleQuatCounter++;
+            }
+        }
+
+        private void OnLowerSensorFrame(HumanoidAngles<Vector3> absoluteAngle)
+        {
+            waist_imu = _imuOrientation.BaseOrientation(absoluteAngle.Waist);
+            leftUpperLeg_imu = _imuOrientation.LeftOrientation(absoluteAngle.LeftUpperLeg);
+            leftLowerLeg_imu = _imuOrientation.LeftOrientation(absoluteAngle.LeftLowerLeg);
+            rightUpperLeg_imu = _imuOrientation.RightOrientation(absoluteAngle.RightUpperLeg);
+            rightLowerLeg_imu = _imuOrientation.RightOrientation(absoluteAngle.RightLowerLeg);
+            if (!hasFirstLowerModQuaternion)
+            {
+                firstLowerModuleQuaternion = waist_imu;
+                hasFirstLowerModQuaternion = !hasFirstLowerModQuaternion;
+                lowerModuleQuatCounter++;
+            }
+            else
+            {
+                waistInitialQuat = Math3d.AverageQuaternion(
+                    ref lowerModuleQuatComponents,
+                    waist_imu,
+                    firstLowerModuleQuaternion,
+                    lowerModuleQuatCounter);
+                lowerModuleQuatCounter++;
+            }
+        }
+
+        public void AlignUpperBodySensors()
+        {
+            ShirtAlignmentBase();
+        }
+
+        public void AlignLowerBodySensors()
+        {
+            PantsAlignmentBase();
+        }
+
+        public void AlignFullBodySensors()
+        {
+            AlignUpperBodySensors();
+            AlignLowerBodySensors();
         }
 
         /// <summary>

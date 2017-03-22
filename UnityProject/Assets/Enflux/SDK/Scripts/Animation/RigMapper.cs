@@ -10,7 +10,7 @@ namespace Enflux.SDK.Animation
     /// </summary>
     public abstract class RigMapper : MonoBehaviour
     {
-        [SerializeField] private Humanoid _humanoid;
+        [SerializeField] private Humanoid _humanoid;        
 
         public virtual Transform Core { get; protected set; }
         public virtual Transform LeftUpperArm { get; protected set; }
