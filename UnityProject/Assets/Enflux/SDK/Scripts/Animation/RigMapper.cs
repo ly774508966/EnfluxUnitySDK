@@ -59,45 +59,45 @@ namespace Enflux.SDK.Animation
             // Apply upper body rotations to rig
             if (Core != null)
             {
-                Core.localRotation = Humanoid.LocalAngles.Chest;
+                Core.rotation = Humanoid.LocalAngles.Chest;
             }
             if (LeftUpperArm != null)
             {
-                LeftUpperArm.localRotation = Humanoid.LocalAngles.LeftUpperArm;
+                LeftUpperArm.rotation = Humanoid.LocalAngles.LeftUpperArm;
             }
             if (LeftLowerArm != null)
             {
-                LeftLowerArm.localRotation = Humanoid.LocalAngles.LeftLowerArm;
+                LeftLowerArm.rotation = Humanoid.LocalAngles.LeftLowerArm;
             }
             if (RightUpperArm != null)
             {
-                RightUpperArm.localRotation = Humanoid.LocalAngles.RightUpperArm;
+                RightUpperArm.rotation = Humanoid.LocalAngles.RightUpperArm;
             }
             if (RightLowerArm != null)
             {
-                RightLowerArm.localRotation = Humanoid.LocalAngles.RightLowerArm;
+                RightLowerArm.rotation = Humanoid.LocalAngles.RightLowerArm;
             }
 
             // Apply lower body rotations to rig
             if (Waist != null)
             {
-                Waist.localRotation = Humanoid.LocalAngles.Waist;
+                Waist.rotation = Humanoid.LocalAngles.Waist;
             }
             if (LeftUpperLeg != null)
             {
-                LeftUpperLeg.localRotation = Humanoid.LocalAngles.LeftUpperLeg;
+                LeftUpperLeg.rotation = Humanoid.LocalAngles.LeftUpperLeg;
             }
             if (LeftLowerLeg != null)
             {
-                LeftLowerLeg.localRotation = Humanoid.LocalAngles.LeftLowerLeg;
+                LeftLowerLeg.rotation = Humanoid.LocalAngles.LeftLowerLeg;
             }
             if (RightUpperLeg != null)
             {
-                RightUpperLeg.localRotation = Humanoid.LocalAngles.RightUpperLeg;
+                RightUpperLeg.rotation = Humanoid.LocalAngles.RightUpperLeg;
             }
             if (RightLowerLeg != null)
             {
-                RightLowerLeg.localRotation = Humanoid.LocalAngles.RightLowerLeg;
+                RightLowerLeg.rotation = Humanoid.LocalAngles.RightLowerLeg;
             }
         }
     }
