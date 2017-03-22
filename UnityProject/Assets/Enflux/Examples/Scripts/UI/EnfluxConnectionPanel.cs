@@ -31,7 +31,7 @@ namespace Enflux.Examples.UI
         [SerializeField] private Text _shirtStateText;
         [SerializeField] private Text _pantsStateText;
         [SerializeField] private Text _resetOrientationText;
-        [SerializeField] private Text _alignOrientationText;
+        [SerializeField] private Text _alignSensorsText;
 
         [SerializeField] private float _resetOrientationTime = 4.0f;
         [SerializeField] private float _alignOrientationTime = 10.0f;
@@ -71,7 +71,7 @@ namespace Enflux.Examples.UI
             _shirtStateText = gameObject.FindChildComponent<Text>("Text_ShirtState");
             _pantsStateText = gameObject.FindChildComponent<Text>("Text_PantsState");
             _resetOrientationText = gameObject.FindChildComponent<Text>("Text_ResetOrientation");
-            _alignOrientationText = gameObject.FindChildComponent<Text>("Text_AlignOrientation");
+            _alignSensorsText = gameObject.FindChildComponent<Text>("Text_AlignSensors");
         }
 
         private void OnValidate()
@@ -161,7 +161,7 @@ namespace Enflux.Examples.UI
         {
             if (deviceNotification == DeviceNotification.ResetOrientation)
             {
-                DoResetOrientationAnimation(false);
+                QueueResetOrientation(false);
             }
         }
 
@@ -169,7 +169,7 @@ namespace Enflux.Examples.UI
         {
             if (deviceNotification == DeviceNotification.ResetOrientation)
             {
-                DoResetOrientationAnimation(false);
+                QueueResetOrientation(false);
             }
         }
 
@@ -214,12 +214,12 @@ namespace Enflux.Examples.UI
 
         private void ResetOrientationButtonOnClick()
         {
-            DoResetOrientationAnimation();
+            QueueResetOrientation();
         }
 
         private void AlignOrientationButtonOnClick()
         {
-            DoSensorAlignment();
+            QueueAlignSensors();
         }
 
         private void OpenBluetoothManagerButtonOnClick()
@@ -247,55 +247,66 @@ namespace Enflux.Examples.UI
                                                _enfluxManager.PantsState == DeviceState.Streaming;
         }
 
-        // Probably needs some error handling here, shouldn't
-        // allow sensors alignment if resetting 
-        private void DoSensorAlignment(bool doCountdown = true)
+        // TODO: Shouldn't allow sensor alignment if resetting
+        // TODO: Stop if suit disconnects 
+        private void QueueAlignSensors(bool doCountdown = true)
         {
             if (_co_resetTimer != null)
             {
                 StopCoroutine(_co_resetTimer);
             }
-            _co_resetTimer = Co_DoSensorAlignment(doCountdown);
+            _co_resetTimer = Co_QueueAlignSensors(doCountdown);
             StartCoroutine(_co_resetTimer);
         }
 
         // need data to flow to a calculation during this time
-        private IEnumerator Co_DoSensorAlignment(bool doCountdown)
+        private IEnumerator Co_QueueAlignSensors(bool doCountdown)
         {
             var time = AlignOrientationTime;
             var aligning = false;
-            if (doCountdown) 
+            var dataCollectionTime = 0.5f * AlignOrientationTime;
+
+            if (doCountdown)
             {
                 while (time > 0.0f)
                 {
-                    if (time <= 5.0f && !aligning)
+                    if (time <= dataCollectionTime && !aligning)
                     {
                         aligning = !aligning;
                         _enfluxManager.AlignFullBodySensors();
                     }
-                    _alignOrientationText.text = string.Format("Aligning in {0:0.0}...", time);
+
+                    if (time <= dataCollectionTime)
+                    {
+                        _alignSensorsText.text = string.Format("Aligning for {0:0.0}...", time);
+                    }
+                    else
+                    {
+                        _alignSensorsText.text = string.Format("Starting alignment in {0:0.0}...", Mathf.Abs(dataCollectionTime - time));
+                    }
                     yield return null;
                     time -= Time.deltaTime;
                 }
             }
             _enfluxManager.AlignFullBodySensors();
-            _alignOrientationText.text = "Aligned!";
+            _alignSensorsText.text = "Aligned!";
             yield return new WaitForSeconds(1.0f);
-            _alignOrientationText.text = "Align Sensors";
+            _alignSensorsText.text = "Align Sensors";
             _co_resetTimer = null;
         }
 
-        private void DoResetOrientationAnimation(bool doCountdown = true)
+        // TODO: Stop if suit disconnects 
+        private void QueueResetOrientation(bool doCountdown = true)
         {
             if (_co_resetTimer != null)
             {
                 StopCoroutine(_co_resetTimer);
             }
-            _co_resetTimer = Co_DoResetOrientationAnimation(doCountdown);
+            _co_resetTimer = Co_QueueResetOrientation(doCountdown);
             StartCoroutine(_co_resetTimer);
         }
 
-        private IEnumerator Co_DoResetOrientationAnimation(bool doCountdown)
+        private IEnumerator Co_QueueResetOrientation(bool doCountdown)
         {
             var time = ResetOrientationTime;
             if (doCountdown)

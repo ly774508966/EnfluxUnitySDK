@@ -396,7 +396,7 @@ GameObject:
   - 222: {fileID: 222000010784357700}
   - 114: {fileID: 114000012715676558}
   m_Layer: 5
-  m_Name: Text_AlignOrientation
+  m_Name: Text_AlignSensors
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1316,12 +1316,12 @@ MonoBehaviour:
   _calibrateShirtButton: {fileID: 114000012200864116}
   _calibratePantsButton: {fileID: 114000011809686954}
   _resetOrientationButton: {fileID: 114000011550849500}
-  _alignSensorsButton: {fileID: 0}
+  _alignSensorsButton: {fileID: 114000010152678420}
   _openBluetoothManagerButton: {fileID: 114000010148722340}
   _shirtStateText: {fileID: 114000013916903184}
   _pantsStateText: {fileID: 114000011661791574}
   _resetOrientationText: {fileID: 114000014182642592}
-  _alignOrientationText: {fileID: 114000012414900736}
+  _alignSensorsText: {fileID: 114000012715676558}
   _resetOrientationTime: 4
   _alignOrientationTime: 10
 --- !u!114 &114000012200130236
