@@ -16,6 +16,39 @@ namespace Enflux.SDK.Core
         [SerializeField, Readonly] private DeviceState _shirtState = DeviceState.Disconnected;
         [SerializeField, Readonly] private DeviceState _pantsState = DeviceState.Disconnected;
 
+        #region Alignment variables
+
+        private readonly ImuOrientations _imuOrientation = new ImuOrientations();
+        private readonly SensorAlignment _sensorAlignment = new SensorAlignment();
+
+        private bool _isAligningUpper;
+        private bool _isAligningLower;
+        private Vector4 _upperModuleQuatComponents;
+        private Vector4 _lowerModuleQuatComponents;
+        private Quaternion _chestInitialQuat;
+        private Quaternion _waistInitialQuat;
+
+        private Quaternion _chestImu;
+        private Quaternion _leftUpperArmImu;
+        private Quaternion _leftLowerArmImu;
+        private Quaternion _rightUpperArmImu;
+        private Quaternion _rightLowerArmImu;
+
+        private Quaternion _waistImu;
+        private Quaternion _leftUpperLegImu;
+        private Quaternion _leftLowerLegImu;
+        private Quaternion _rightUpperLegImu;
+        private Quaternion _rightLowerLegImu;
+
+        private Quaternion _firstUpperModuleQuat;
+        private bool _hasFirstUpperModQuat;
+        private int _upperModuleQuatCounter;
+        private Quaternion _firstLowerModuleQuat;
+        private bool _hasFirstLowerModQuat;
+        private int _lowerModuleQuatCounter;
+
+        #endregion
+
         private Vector3 _shirtBaseOrientation;
         private Vector3 _pantsBaseOrientation;
         private readonly HumanoidAngles<Vector3> _absoluteAngles = new HumanoidAngles<Vector3>();
@@ -28,76 +61,56 @@ namespace Enflux.SDK.Core
         public event Action<DeviceError> PantsReceivedError;
 
 
-        #region alignmentvars
-        private readonly ImuOrientations _imuOrientation = new ImuOrientations();
-        private SensorAlignment _sensorAlignment = new SensorAlignment();
+        #region Alignment properties
 
-        private bool _aligningUpper = false;
-        private bool _aligningLower = false;
-        private Vector4 upperModuleQuatComponents;
-        private Vector4 lowerModuleQuatComponents;
-        private Quaternion chestInitialQuat;
-        private Quaternion waistInitialQuat;
-
-        private Quaternion chest_imu;
-        private Quaternion leftUpperArm_imu;
-        private Quaternion leftLowerArm_imu;
-        private Quaternion rightUpperArm_imu;
-        private Quaternion rightLowerArm_imu;
-
-        private Quaternion waist_imu;
-        private Quaternion leftUpperLeg_imu;
-        private Quaternion leftLowerLeg_imu;
-        private Quaternion rightUpperLeg_imu;
-        private Quaternion rightLowerLeg_imu;
-
-        private Quaternion firstUpperModuleQuaternion;
-        private bool hasFirstUpperModQuaternion = false;
-        private int upperModuleQuatCounter = 0;
-        private Quaternion firstLowerModuleQuaternion;
-        private bool hasFirstLowerModQuaternion = false;
-        private int lowerModuleQuatCounter = 0;
-
-        public Quaternion chestCorrection
+        public Quaternion ChestCorrection
         {
-            get { return _sensorAlignment.chestCorrection; }
-        }
-        public Quaternion leftUpperArmCorrection
-        {
-            get { return _sensorAlignment.leftUpperArmCorrection; }
-        }
-        public Quaternion leftLowerArmCorrection
-        {
-            get { return _sensorAlignment.leftLowerArmCorrection; }
-        }
-        public Quaternion rightUpperArmCorrection
-        {
-            get { return _sensorAlignment.rightUpperArmCorrection; }
-        }
-        public Quaternion rightLowerArmCorrection
-        {
-            get { return _sensorAlignment.rightLowerArmCorrection; }
-        }
-        public Quaternion waistCorrection
-        {
-            get { return _sensorAlignment.waistCorrection; }
-        }
-        public Quaternion leftUpperLegCorrection
-        {
-            get { return _sensorAlignment.leftUpperLegCorrection; }
-        }
-        public Quaternion leftLowerLegCorrection
-        {
-            get { return _sensorAlignment.leftLowerLegCorrection; }
-        }
-        public Quaternion rightUpperLegCorrection
-        {
-            get { return _sensorAlignment.rightUpperLegCorrection; }
+            get { return _sensorAlignment.ChestCorrection; }
         }
 
-        public Quaternion rightLowerLegCorrection
+        public Quaternion LeftUpperArmCorrection
         {
-            get { return _sensorAlignment.rightLowerLegCorrection; }
+            get { return _sensorAlignment.LeftUpperArmCorrection; }
+        }
+
+        public Quaternion LeftLowerArmCorrection
+        {
+            get { return _sensorAlignment.LeftLowerArmCorrection; }
+        }
+
+        public Quaternion RightUpperArmCorrection
+        {
+            get { return _sensorAlignment.RightUpperArmCorrection; }
+        }
+
+        public Quaternion RightLowerArmCorrection
+        {
+            get { return _sensorAlignment.RightLowerArmCorrection; }
+        }
+
+        public Quaternion WaistCorrection
+        {
+            get { return _sensorAlignment.WaistCorrection; }
+        }
+
+        public Quaternion LeftUpperLegCorrection
+        {
+            get { return _sensorAlignment.LeftUpperLegCorrection; }
+        }
+
+        public Quaternion LeftLowerLegCorrection
+        {
+            get { return _sensorAlignment.LeftLowerLegCorrection; }
+        }
+
+        public Quaternion RightUpperLegCorrection
+        {
+            get { return _sensorAlignment.RightUpperLegCorrection; }
+        }
+
+        public Quaternion RightLowerLegCorrection
+        {
+            get { return _sensorAlignment.RightLowerLegCorrection; }
         }
 
         #endregion
@@ -214,100 +227,100 @@ namespace Enflux.SDK.Core
 
         private void ShirtAlignmentBase()
         {
-            if (!_aligningUpper)
+            if (!_isAligningUpper)
             {
-                hasFirstUpperModQuaternion = false;
-                upperModuleQuatComponents = new Vector4();
-                upperModuleQuatCounter = 0;
-                chestInitialQuat = new Quaternion();
-                firstUpperModuleQuaternion = new Quaternion();
+                _hasFirstUpperModQuat = false;
+                _upperModuleQuatComponents = new Vector4();
+                _upperModuleQuatCounter = 0;
+                _chestInitialQuat = new Quaternion();
+                _firstUpperModuleQuat = new Quaternion();
                 AbsoluteAngles.UpperBodyAnglesChanged += OnUpperSensorFrame;
             }
             else
             {
                 AbsoluteAngles.UpperBodyAnglesChanged -= OnUpperSensorFrame;
                 _sensorAlignment.UpperBodyAlignment(
-                    chestInitialQuat,
-                    chest_imu,
-                    leftUpperArm_imu,
-                    leftLowerArm_imu,
-                    rightUpperArm_imu,
-                    rightLowerArm_imu);
+                    _chestInitialQuat,
+                    _chestImu,
+                    _leftUpperArmImu,
+                    _leftLowerArmImu,
+                    _rightUpperArmImu,
+                    _rightLowerArmImu);
             }
-            _aligningUpper = !_aligningUpper;
+            _isAligningUpper = !_isAligningUpper;
         }
 
         private void PantsAlignmentBase()
         {
-            if (!_aligningLower)
+            if (!_isAligningLower)
             {
-                hasFirstLowerModQuaternion = false;
-                lowerModuleQuatComponents = new Vector4();
-                lowerModuleQuatCounter = 0;
-                waistInitialQuat = new Quaternion();
-                firstLowerModuleQuaternion = new Quaternion();
+                _hasFirstLowerModQuat = false;
+                _lowerModuleQuatComponents = new Vector4();
+                _lowerModuleQuatCounter = 0;
+                _waistInitialQuat = new Quaternion();
+                _firstLowerModuleQuat = new Quaternion();
                 AbsoluteAngles.LowerBodyAnglesChanged += OnLowerSensorFrame;
             }
             else
             {
                 AbsoluteAngles.LowerBodyAnglesChanged -= OnLowerSensorFrame;
                 _sensorAlignment.LowerBodyAlignment(
-                    waistInitialQuat,
-                    waist_imu,
-                    leftUpperLeg_imu,
-                    leftLowerLeg_imu,
-                    rightUpperLeg_imu,
-                    rightLowerLeg_imu);
+                    _waistInitialQuat,
+                    _waistImu,
+                    _leftUpperLegImu,
+                    _leftLowerLegImu,
+                    _rightUpperLegImu,
+                    _rightLowerLegImu);
             }
-            _aligningLower = !_aligningLower;
+            _isAligningLower = !_isAligningLower;
         }
 
         private void OnUpperSensorFrame(HumanoidAngles<Vector3> absoluteAngle)
         {
-            chest_imu = _imuOrientation.BaseOrientation(absoluteAngle.Chest);
-            leftUpperArm_imu = _imuOrientation.LeftOrientation(absoluteAngle.LeftUpperArm);
-            leftLowerArm_imu = _imuOrientation.LeftOrientation(absoluteAngle.LeftLowerArm);
-            rightUpperArm_imu = _imuOrientation.RightOrientation(absoluteAngle.RightUpperArm);
-            rightLowerArm_imu = _imuOrientation.RightOrientation(absoluteAngle.RightLowerArm);
-            if (!hasFirstUpperModQuaternion)
+            _chestImu = _imuOrientation.BaseOrientation(absoluteAngle.Chest);
+            _leftUpperArmImu = _imuOrientation.LeftOrientation(absoluteAngle.LeftUpperArm);
+            _leftLowerArmImu = _imuOrientation.LeftOrientation(absoluteAngle.LeftLowerArm);
+            _rightUpperArmImu = _imuOrientation.RightOrientation(absoluteAngle.RightUpperArm);
+            _rightLowerArmImu = _imuOrientation.RightOrientation(absoluteAngle.RightLowerArm);
+            if (!_hasFirstUpperModQuat)
             {
-                firstUpperModuleQuaternion = chest_imu;
-                hasFirstUpperModQuaternion = !hasFirstUpperModQuaternion;
-                upperModuleQuatCounter++;
+                _firstUpperModuleQuat = _chestImu;
+                _hasFirstUpperModQuat = !_hasFirstUpperModQuat;
+                ++_upperModuleQuatCounter;
             }
             else
             {
-                chestInitialQuat = Math3d.AverageQuaternion(
-                    ref upperModuleQuatComponents,
-                    chest_imu,
-                    firstUpperModuleQuaternion,
-                    upperModuleQuatCounter);
+                _chestInitialQuat = Math3d.AverageQuaternion(
+                    ref _upperModuleQuatComponents,
+                    _chestImu,
+                    _firstUpperModuleQuat,
+                    _upperModuleQuatCounter);
 
-                upperModuleQuatCounter++;
+                ++_upperModuleQuatCounter;
             }
         }
 
         private void OnLowerSensorFrame(HumanoidAngles<Vector3> absoluteAngle)
         {
-            waist_imu = _imuOrientation.BaseOrientation(absoluteAngle.Waist);
-            leftUpperLeg_imu = _imuOrientation.LeftOrientation(absoluteAngle.LeftUpperLeg);
-            leftLowerLeg_imu = _imuOrientation.LeftOrientation(absoluteAngle.LeftLowerLeg);
-            rightUpperLeg_imu = _imuOrientation.RightOrientation(absoluteAngle.RightUpperLeg);
-            rightLowerLeg_imu = _imuOrientation.RightOrientation(absoluteAngle.RightLowerLeg);
-            if (!hasFirstLowerModQuaternion)
+            _waistImu = _imuOrientation.BaseOrientation(absoluteAngle.Waist);
+            _leftUpperLegImu = _imuOrientation.LeftOrientation(absoluteAngle.LeftUpperLeg);
+            _leftLowerLegImu = _imuOrientation.LeftOrientation(absoluteAngle.LeftLowerLeg);
+            _rightUpperLegImu = _imuOrientation.RightOrientation(absoluteAngle.RightUpperLeg);
+            _rightLowerLegImu = _imuOrientation.RightOrientation(absoluteAngle.RightLowerLeg);
+            if (!_hasFirstLowerModQuat)
             {
-                firstLowerModuleQuaternion = waist_imu;
-                hasFirstLowerModQuaternion = !hasFirstLowerModQuaternion;
-                lowerModuleQuatCounter++;
+                _firstLowerModuleQuat = _waistImu;
+                _hasFirstLowerModQuat = !_hasFirstLowerModQuat;
+                ++_lowerModuleQuatCounter;
             }
             else
             {
-                waistInitialQuat = Math3d.AverageQuaternion(
-                    ref lowerModuleQuatComponents,
-                    waist_imu,
-                    firstLowerModuleQuaternion,
-                    lowerModuleQuatCounter);
-                lowerModuleQuatCounter++;
+                _waistInitialQuat = Math3d.AverageQuaternion(
+                    ref _lowerModuleQuatComponents,
+                    _waistImu,
+                    _firstLowerModuleQuat,
+                    _lowerModuleQuatCounter);
+                ++_lowerModuleQuatCounter;
             }
         }
 
