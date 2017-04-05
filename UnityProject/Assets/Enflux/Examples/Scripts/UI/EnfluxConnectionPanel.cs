@@ -273,7 +273,7 @@ namespace Enflux.Examples.UI
                     if (time <= dataCollectionTime && !aligning)
                     {
                         // Start calculating data
-                        _enfluxManager.AlignFullBodySensors();
+                        //_enfluxManager.AlignFullBodySensors();
                         aligning = true;
                     }
 
@@ -288,9 +288,8 @@ namespace Enflux.Examples.UI
                     yield return null;
                     time -= Time.deltaTime;
                 }
-            }
-            // Stop calculating data
-            _enfluxManager.AlignFullBodySensors();
+            }           
+           
             _alignSensorsText.text = "Aligned!";
             yield return new WaitForSeconds(1.0f);
             _alignSensorsText.text = "Align Sensors";

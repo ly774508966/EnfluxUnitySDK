@@ -6,12 +6,10 @@ using Enflux.SDK.Utils;
 
 namespace Enflux.SDK.Core
 {
-    // Designed to be attached to a rig
-    public class SuitAlignment : MonoBehaviour
+    
+    public class SuitAlignment 
     {
-        [SerializeField, HideInInspector]
-        private EnfluxSuitStream _absoluteAnglesStream;
-        private AlignmentQuaternions<Quaternion> _alignment = new AlignmentQuaternions<Quaternion>();
+        private EnfluxSuitStream _absoluteAnglesStream;        
 
         private int _alignmentTime = 5;
         private IEnumerator _co_alignTimer = null;
@@ -26,43 +24,15 @@ namespace Enflux.SDK.Core
         private Module _lowerModule = null;
 
         private AlignmentQuaternions<Quaternion> _upperAlignment = null;
-        private AlignmentQuaternions<Quaternion> _lowerAlignment = null;
+        private AlignmentQuaternions<Quaternion> _lowerAlignment = null;       
 
         public event Action<int> AlignmentTimeRemaining;
 
-        /// <summary>
-        /// The source of the absolute angles used to calculate local angles for each limb.
-        /// </summary>
-        public EnfluxSuitStream AbsoluteAnglesStream
+        public SuitAlignment(EnfluxSuitStream s)
         {
-            get { return _absoluteAnglesStream; }
-            set
-            {
-                if (_absoluteAnglesStream == value)
-                {
-                    return;
-                }
-                _absoluteAnglesStream = value;                
-            }
-        }       
-
-        // may need to use this to get initial orientation
-        private void Awake()
-        {
-            if (!_isAligned)
-            {
-
-            }            
+            _absoluteAnglesStream = s;
         }
-
-        private void OnDestroy()
-        {
-            if (_isSubscribed)
-            {
-                UnsubscribeFromEvents();
-            }
-        }
-
+        
         // call to start data polling 
         public void InitiateAlignment()
         {
@@ -85,7 +55,7 @@ namespace Enflux.SDK.Core
             {
                 _upperAlignment = new AlignmentQuaternions<Quaternion>();
 
-                // alignment should not do anything to IMU heading axis
+                // alignment should not do anything to IMU heading axis                
                 upper.z = 0;
                 _upperAlignment.CenterAlignment = _imuOrientation.BaseOrientation(upper);               
             }
@@ -116,7 +86,25 @@ namespace Enflux.SDK.Core
 
         private void OnLowerBodyAnglesChanged(HumanoidAngles<Vector3> absoluteAngles)
         {
+            if (_lowerModule == null)
+            {
+                _lowerModule = new Module();
+                _lowerModule.FirstQuat = _imuOrientation.BaseOrientation(absoluteAngles.Waist);
+            }
+            else
+            {
+                _lowerModule.Center = _imuOrientation.BaseOrientation(absoluteAngles.Waist);
+                _lowerModule.LeftUpper = _imuOrientation.LeftOrientation(absoluteAngles.LeftUpperLeg);
+                _lowerModule.LeftLower = _imuOrientation.LeftOrientation(absoluteAngles.LeftLowerLeg);
+                _lowerModule.RightUpper = _imuOrientation.RightOrientation(absoluteAngles.RightUpperLeg);
+                _lowerModule.RightLower = _imuOrientation.RightOrientation(absoluteAngles.RightLowerLeg);
 
+                _lowerModule.InitialCenter = QuaternionUtils.AverageQuaternion(
+                    ref _lowerModule.QuatComponents,
+                    _lowerModule.Center,
+                    _lowerModule.FirstQuat,
+                    ++_lowerModule.QuatCounter);
+            }
         }
 
         // Subscribe to main data stream
@@ -127,8 +115,8 @@ namespace Enflux.SDK.Core
                 return;
             }
             _isSubscribed = true;
-            AbsoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged += OnUpperBodyAnglesChanged;
-            AbsoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged += OnLowerBodyAnglesChanged;           
+            _absoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged += OnUpperBodyAnglesChanged;
+            _absoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged += OnLowerBodyAnglesChanged;           
         }
 
         private void UnsubscribeFromEvents()
@@ -138,42 +126,9 @@ namespace Enflux.SDK.Core
                 return;
             }
             _isSubscribed = false;
-            AbsoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged -= OnUpperBodyAnglesChanged;
-            AbsoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged -= OnLowerBodyAnglesChanged;
-        }
-
-        //TODO: needs to stop the coroutine if connection is lost
-        private void QueueAlignSensors()
-        {
-            if(_co_alignTimer != null)
-            {
-                StopCoroutine(_co_alignTimer);
-            }
-
-            _co_alignTimer = Co_QueueAlignSensors();
-            StartCoroutine(_co_alignTimer);
-        }
-
-        private IEnumerator Co_QueueAlignSensors()
-        {
-            var time = _alignmentTime;
-
-            while(time > 0)
-            {
-                // emit an event here for status of alignment
-                RaiseAlignmentTimingEvent(time--);
-                yield return new WaitForSeconds(1.0f);
-            }
-
-            // Stop listening for data
-            UnsubscribeFromEvents();
-
-            // reset timer
-            _co_alignTimer = null;
-
-            // fire off alignment calculations
-            AlignFullBodySensors();                                    
-        }
+            _absoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged -= OnUpperBodyAnglesChanged;
+            _absoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged -= OnLowerBodyAnglesChanged;
+        }        
 
         private void RaiseAlignmentTimingEvent(int remainingTime)
         {
@@ -207,7 +162,17 @@ namespace Enflux.SDK.Core
 
         private void AlignLowerBodySensors()
         {
+            // may want to return something from this function
+            _sensorAlignment.LowerBodyAlignment(
+                    _lowerModule.InitialCenter,
+                    _lowerModule.Center,
+                    _lowerModule.LeftUpper,
+                    _lowerModule.LeftLower,
+                    _lowerModule.RightUpper,
+                    _lowerModule.RightLower);
 
+            // discard module
+            _lowerModule = null;
         }        
 
         private class Module

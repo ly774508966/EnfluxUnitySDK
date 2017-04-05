@@ -116,26 +116,21 @@ namespace Enflux.SDK.Core
 
             // Transform absolute upper body angles into local ones
             var localAngleChest = Quaternion.identity *
-                _imuOrientation.BaseOrientation(_yawAdjustedChestAngles) *
-                AbsoluteAnglesStream.ChestCorrection;
+                _imuOrientation.BaseOrientation(_yawAdjustedChestAngles);
 
             var localAngleLeftUpperArm = Quaternion.Inverse(localAngleChest) *
-                _imuOrientation.LeftOrientation(_yawAdjustedLeftUpperArmAngles) *
-                AbsoluteAnglesStream.LeftUpperArmCorrection;
+                _imuOrientation.LeftOrientation(_yawAdjustedLeftUpperArmAngles);
 
             var localAngleLeftLowerArm = Quaternion.Inverse(localAngleLeftUpperArm) *
                 Quaternion.Inverse(localAngleChest) *
-                _imuOrientation.LeftOrientation(_yawAdjustedLeftLowerArmAngles) *
-                AbsoluteAnglesStream.LeftLowerArmCorrection;
+                _imuOrientation.LeftOrientation(_yawAdjustedLeftLowerArmAngles);
 
             var localAngleRightUpperArm = Quaternion.Inverse(localAngleChest) *
-                _imuOrientation.RightOrientation(_yawAdjustedRightUpperArmAngles) *
-                AbsoluteAnglesStream.RightUpperArmCorrection;
+                _imuOrientation.RightOrientation(_yawAdjustedRightUpperArmAngles);
 
             var localAngleRightLowerArm = Quaternion.Inverse(localAngleRightUpperArm) *
                 Quaternion.Inverse(localAngleChest) *
-                _imuOrientation.RightOrientation(_yawAdjustedRightLowerArmAngles) *
-                AbsoluteAnglesStream.RightLowerArmCorrection;
+                _imuOrientation.RightOrientation(_yawAdjustedRightLowerArmAngles);
 
             LocalAngles.SetUpperBodyAngles(
                 localAngleChest,
@@ -172,26 +167,21 @@ namespace Enflux.SDK.Core
 
             // Transform absolute lower body angles into relative ones
             var localAngleWaist = Quaternion.identity *
-                _imuOrientation.BaseOrientation(_yawAdjustedWaistAngles) *
-                AbsoluteAnglesStream.WaistCorrection;
+                _imuOrientation.BaseOrientation(_yawAdjustedWaistAngles);
 
             var localAngleLeftUpperLeg = Quaternion.Inverse(localAngleWaist) *
-                _imuOrientation.LeftOrientation(_yawAdjustedLeftUpperLegAngles) *
-                AbsoluteAnglesStream.LeftUpperLegCorrection;
+                _imuOrientation.LeftOrientation(_yawAdjustedLeftUpperLegAngles);
 
             var localAngleLeftLowerLeg = Quaternion.Inverse(localAngleLeftUpperLeg) *
                 Quaternion.Inverse(localAngleWaist) *
-                _imuOrientation.LeftOrientation(_yawAdjustedLeftLowerLegAngles) *
-                AbsoluteAnglesStream.LeftLowerLegCorrection;
+                _imuOrientation.LeftOrientation(_yawAdjustedLeftLowerLegAngles);
 
             var localAngleRightUpperLeg = Quaternion.Inverse(localAngleWaist) *
-                _imuOrientation.RightOrientation(_yawAdjustedRightUpperLegAngles) *
-                AbsoluteAnglesStream.RightUpperLegCorrection;
+                _imuOrientation.RightOrientation(_yawAdjustedRightUpperLegAngles);
 
             var localAngleRightLowerLeg = Quaternion.Inverse(localAngleRightUpperLeg) *
                 Quaternion.Inverse(localAngleWaist) *
-                _imuOrientation.RightOrientation(_yawAdjustedRightLowerLegAngles) *
-                AbsoluteAnglesStream.RightLowerLegCorrection;
+                _imuOrientation.RightOrientation(_yawAdjustedRightLowerLegAngles);
 
             LocalAngles.SetLowerBodyAngles(
                 localAngleWaist,
