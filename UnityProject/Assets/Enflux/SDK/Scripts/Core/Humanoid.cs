@@ -32,7 +32,6 @@ namespace Enflux.SDK.Core
         /// </summary>
         public readonly HumanoidAngles<Quaternion> LocalAngles = new HumanoidAngles<Quaternion>();
 
-
         /// <summary>
         /// The source of the absolute angles used to calculate local angles for each limb.
         /// </summary>
