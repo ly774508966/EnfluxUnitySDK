@@ -11,9 +11,9 @@ namespace Enflux.SDK.Core
     {
         [SerializeField, HideInInspector]
         private EnfluxSuitStream _absoluteAnglesStream;
-        private AlignmentAngles<Quaternion> _alignment = new AlignmentAngles<Quaternion>();
+        private AlignmentQuaternions<Quaternion> _alignment = new AlignmentQuaternions<Quaternion>();
 
-        private float time = 5.0f;
+        private int _alignmentTime = 5;
         private IEnumerator _co_alignTimer = null;
 
         private bool _isSubscribed = false;
@@ -23,7 +23,12 @@ namespace Enflux.SDK.Core
         private readonly ImuOrientations _imuOrientation = new ImuOrientations();                
 
         private Module _upperModule = null;
-        private Module _lowerModule = null;                       
+        private Module _lowerModule = null;
+
+        private AlignmentQuaternions<Quaternion> _upperAlignment = null;
+        private AlignmentQuaternions<Quaternion> _lowerAlignment = null;
+
+        public event Action<int> AlignmentTimeRemaining;
 
         /// <summary>
         /// The source of the absolute angles used to calculate local angles for each limb.
@@ -39,12 +44,7 @@ namespace Enflux.SDK.Core
                 }
                 _absoluteAnglesStream = value;                
             }
-        }
-
-        public AlignmentAngles<Quaternion> Alignment
-        {
-            get { return _alignment; }
-        }
+        }       
 
         // may need to use this to get initial orientation
         private void Awake()
@@ -78,32 +78,18 @@ namespace Enflux.SDK.Core
             }
         }
 
-        private void SetInitialAlignment()
+        private void SetInitialAlignment(Vector3 upper, Vector3 lower)
         {
-
-        }
-
-        // used to get initial alignment w/ no calculations
-        private Vector3 ChestBaseOrientation
-        {
-            get
-            {                
-                return 
-                    (AbsoluteAnglesStream != null) ? 
-                    AbsoluteAnglesStream.ShirtBaseOrientation : Vector3.zero;
-            }
-        }
-
-        // used to get initial alignment w/ no calculations
-        private Vector3 WaistBaseOrientation
-        {
-            get
+            // only set if there is not already an alignment
+            if (_upperAlignment == null)
             {
-                return 
-                    (AbsoluteAnglesStream != null) ? 
-                    AbsoluteAnglesStream.PantsBaseOrientation : Vector3.zero;
+                _upperAlignment = new AlignmentQuaternions<Quaternion>();
+
+                // alignment should not do anything to IMU heading axis
+                upper.z = 0;
+                _upperAlignment.CenterAlignment = _imuOrientation.BaseOrientation(upper);               
             }
-        }
+        }       
 
         private void OnUpperBodyAnglesChanged(HumanoidAngles<Vector3> absoluteAngles)
         {
@@ -142,7 +128,7 @@ namespace Enflux.SDK.Core
             }
             _isSubscribed = true;
             AbsoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged += OnUpperBodyAnglesChanged;
-            AbsoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged += OnLowerBodyAnglesChanged;
+            AbsoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged += OnLowerBodyAnglesChanged;           
         }
 
         private void UnsubscribeFromEvents()
@@ -170,9 +156,12 @@ namespace Enflux.SDK.Core
 
         private IEnumerator Co_QueueAlignSensors()
         {
-            while(time > 0.0f)
+            var time = _alignmentTime;
+
+            while(time > 0)
             {
                 // emit an event here for status of alignment
+                RaiseAlignmentTimingEvent(time--);
                 yield return new WaitForSeconds(1.0f);
             }
 
@@ -184,6 +173,15 @@ namespace Enflux.SDK.Core
 
             // fire off alignment calculations
             AlignFullBodySensors();                                    
+        }
+
+        private void RaiseAlignmentTimingEvent(int remainingTime)
+        {
+            var handler = AlignmentTimeRemaining;
+            if(handler != null)
+            {
+                handler(remainingTime);
+            }
         }
 
         private void AlignFullBodySensors()
@@ -210,7 +208,7 @@ namespace Enflux.SDK.Core
         private void AlignLowerBodySensors()
         {
 
-        }
+        }        
 
         private class Module
         {
