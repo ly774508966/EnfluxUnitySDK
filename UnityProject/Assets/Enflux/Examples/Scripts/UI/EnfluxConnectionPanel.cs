@@ -26,14 +26,18 @@ namespace Enflux.Examples.UI
         [SerializeField] private Button _calibrateShirtButton;
         [SerializeField] private Button _calibratePantsButton;
         [SerializeField] private Button _resetOrientationButton;
+        [SerializeField] private Button _alignSensorsButton;
         [SerializeField] private Button _openBluetoothManagerButton;
         [SerializeField] private Text _shirtStateText;
         [SerializeField] private Text _pantsStateText;
         [SerializeField] private Text _resetOrientationText;
+        [SerializeField] private Text _alignSensorsText;
 
         [SerializeField] private float _resetOrientationTime = 4.0f;
+        [SerializeField] private float _alignPrepTime = 5.0f;
 
-        private IEnumerator _co_resetTimer;
+        private IEnumerator _co_resetOrientationTimer;
+        private IEnumerator _co_alignmentTimer;
 
 
         public float ResetOrientationTime
@@ -42,6 +46,11 @@ namespace Enflux.Examples.UI
             set { _resetOrientationTime = Mathf.Max(0f, value); }
         }
 
+        public float AlignPrepTime
+        {
+            get { return _alignPrepTime; }
+            set { _alignPrepTime = Mathf.Max(0f, value); }
+        }
 
         private void Reset()
         {
@@ -58,10 +67,12 @@ namespace Enflux.Examples.UI
             _calibrateShirtButton = gameObject.FindChildComponent<Button>("Button_CalibrateShirt");
             _calibratePantsButton = gameObject.FindChildComponent<Button>("Button_CalibratePants");
             _resetOrientationButton = gameObject.FindChildComponent<Button>("Button_ResetOrientation");
+            _alignSensorsButton = gameObject.FindChildComponent<Button>("Button_AlignSensors");
             _openBluetoothManagerButton = gameObject.FindChildComponent<Button>("Button_OpenBluetoothManager");
             _shirtStateText = gameObject.FindChildComponent<Text>("Text_ShirtState");
             _pantsStateText = gameObject.FindChildComponent<Text>("Text_PantsState");
             _resetOrientationText = gameObject.FindChildComponent<Text>("Text_ResetOrientation");
+            _alignSensorsText = gameObject.FindChildComponent<Text>("Text_AlignSensors");
         }
 
         private void OnValidate()
@@ -108,6 +119,7 @@ namespace Enflux.Examples.UI
             _calibrateShirtButton.onClick.AddListener(CalibrateShirtButtonOnClick);
             _calibratePantsButton.onClick.AddListener(CalibratePantsButtonOnClick);
             _resetOrientationButton.onClick.AddListener(ResetOrientationButtonOnClick);
+            _alignSensorsButton.onClick.AddListener(AlignOrientationButtonOnClick);
             _openBluetoothManagerButton.onClick.AddListener(OpenBluetoothManagerButtonOnClick);
         }
 
@@ -128,6 +140,7 @@ namespace Enflux.Examples.UI
             _calibrateShirtButton.onClick.RemoveListener(CalibrateShirtButtonOnClick);
             _calibratePantsButton.onClick.RemoveListener(CalibratePantsButtonOnClick);
             _resetOrientationButton.onClick.RemoveListener(ResetOrientationButtonOnClick);
+            _alignSensorsButton.onClick.RemoveListener(AlignOrientationButtonOnClick);
             _openBluetoothManagerButton.onClick.RemoveListener(OpenBluetoothManagerButtonOnClick);
         }
 
@@ -149,7 +162,7 @@ namespace Enflux.Examples.UI
         {
             if (deviceNotification == DeviceNotification.ResetOrientation)
             {
-                DoResetOrientationAnimation(false);
+                QueueResetOrientation(false);
             }
         }
 
@@ -157,7 +170,7 @@ namespace Enflux.Examples.UI
         {
             if (deviceNotification == DeviceNotification.ResetOrientation)
             {
-                DoResetOrientationAnimation(false);
+                QueueResetOrientation(false);
             }
         }
 
@@ -202,7 +215,12 @@ namespace Enflux.Examples.UI
 
         private void ResetOrientationButtonOnClick()
         {
-            DoResetOrientationAnimation();
+            QueueResetOrientation();
+        }
+
+        private void AlignOrientationButtonOnClick()
+        {
+            QueueAlignSensors();
         }
 
         private void OpenBluetoothManagerButtonOnClick()
@@ -226,19 +244,84 @@ namespace Enflux.Examples.UI
             _calibratePantsButton.interactable = _enfluxManager.PantsState == DeviceState.Disconnected;
             _resetOrientationButton.interactable = _enfluxManager.ShirtState == DeviceState.Streaming ||
                                                    _enfluxManager.PantsState == DeviceState.Streaming;
+            _alignSensorsButton.interactable = _enfluxManager.ShirtState == DeviceState.Streaming ||
+                                               _enfluxManager.PantsState == DeviceState.Streaming;
         }
 
-        private void DoResetOrientationAnimation(bool doCountdown = true)
+        // TODO: Shouldn't allow sensor alignment if resetting
+        // TODO: Stop if suit disconnects 
+        private void QueueAlignSensors(bool doCountdown = true)
         {
-            if (_co_resetTimer != null)
+            if (_co_alignmentTimer != null)
             {
-                StopCoroutine(_co_resetTimer);
+                StopCoroutine(_co_alignmentTimer);
             }
-            _co_resetTimer = Co_DoResetOrientationAnimation(doCountdown);
-            StartCoroutine(_co_resetTimer);
+            _co_alignmentTimer = Co_QueueAlignSensors(doCountdown);
+            StartCoroutine(_co_alignmentTimer);
         }
 
-        private IEnumerator Co_DoResetOrientationAnimation(bool doCountdown)
+        // Countdown to give user time to get in initial pose
+        private IEnumerator Co_QueueAlignSensors(bool doCountdown)
+        {
+            var time = AlignPrepTime;
+
+            if (doCountdown)
+            {
+                while (time > 0.0f)
+                {
+                    _alignSensorsText.text = string.
+                        Format("Starting alignment in {0:0.0}...", Mathf.Abs(time));
+                    time -= Time.deltaTime;
+                    yield return null;
+                }
+
+                _enfluxManager.AlignmentStateChanged += OnAlignmentState;
+                _enfluxManager.AlignmentProgressChanged += OnAlignmentProgress;
+                _alignSensorsText.text = "Aligning!";
+                _enfluxManager.AlignSensorsToUser();
+            }
+            _co_alignmentTimer = null;
+        }
+
+        private IEnumerator Co_ResetAlignmentText()
+        {
+            yield return new WaitForSeconds(1.0f);
+            _alignSensorsText.text = "Align Sensors";
+        }       
+
+        private void OnAlignmentState(AlignmentState state)
+        {
+            _enfluxManager.AlignmentStateChanged -= OnAlignmentState;
+            _enfluxManager.AlignmentProgressChanged -= OnAlignmentProgress;
+            if (state == AlignmentState.ErrorAligning)
+            {
+                _alignSensorsText.text = "Error Occured!";
+            }
+            if (state == AlignmentState.Aligned)
+            {
+                _alignSensorsText.text = "Aligned!";
+            }
+            StartCoroutine(Co_ResetAlignmentText());
+        }
+
+        private void OnAlignmentProgress(float progress)
+        {
+            _alignSensorsText.text = string.
+                        Format("Aligning: {0:0}%", progress * 100);
+        }
+
+        // TODO: Stop if suit disconnects 
+        private void QueueResetOrientation(bool doCountdown = true)
+        {
+            if (_co_resetOrientationTimer != null)
+            {
+                StopCoroutine(_co_resetOrientationTimer);
+            }
+            _co_resetOrientationTimer = Co_QueueResetOrientation(doCountdown);
+            StartCoroutine(_co_resetOrientationTimer);
+        }
+
+        private IEnumerator Co_QueueResetOrientation(bool doCountdown)
         {
             var time = ResetOrientationTime;
             if (doCountdown)
@@ -255,7 +338,7 @@ namespace Enflux.Examples.UI
 
             yield return new WaitForSeconds(1.0f);
             _resetOrientationText.text = "Reset Orientation";
-            _co_resetTimer = null;
+            _co_resetOrientationTimer = null;
         }
 
         private string GetNicifiedString(StateChange<DeviceState> stateChange)

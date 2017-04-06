@@ -3718,7 +3718,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62f7e960635708f4789eb827252ddfe6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _humanoid: {fileID: 114953429738589958}
+  _humanoid: {fileID: 0}
   _chest: {fileID: 4000011779977616}
   _leftUpperArm: {fileID: 4000012373445408}
   _leftLowerArm: {fileID: 4000011326694730}

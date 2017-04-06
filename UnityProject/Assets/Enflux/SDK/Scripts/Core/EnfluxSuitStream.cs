@@ -3,6 +3,7 @@
 using System;
 using Enflux.SDK.Attributes;
 using UnityEngine;
+using Enflux.SDK.Alignment;
 
 namespace Enflux.SDK.Core
 {
@@ -15,8 +16,15 @@ namespace Enflux.SDK.Core
         [SerializeField, Readonly] private DeviceState _shirtState = DeviceState.Disconnected;
         [SerializeField, Readonly] private DeviceState _pantsState = DeviceState.Disconnected;
 
+        private AlignmentState _alignState = AlignmentState.Unaligned;
+
         private Vector3 _shirtBaseOrientation;
         private Vector3 _pantsBaseOrientation;
+
+        private SuitAlignment _suitAlign;
+        private AlignmentQuaternions _shirtAlignment;
+        private AlignmentQuaternions _pantAlignment;
+
         private readonly HumanoidAngles<Vector3> _absoluteAngles = new HumanoidAngles<Vector3>();
 
         public event Action<StateChange<DeviceState>> ShirtStateChanged;
@@ -25,7 +33,37 @@ namespace Enflux.SDK.Core
         public event Action<DeviceNotification> PantsReceivedNotification;
         public event Action<DeviceError> ShirtReceivedError;
         public event Action<DeviceError> PantsReceivedError;
+        public event Action<AlignmentState> AlignmentStateChanged;
+        public event Action<float> AlignmentProgressChanged;
 
+        public AlignmentQuaternions ShirtAlignment
+        {
+            get
+            {
+                if (_shirtAlignment == null)
+                {
+                    _shirtAlignment = new AlignmentQuaternions();
+                }
+                return _shirtAlignment;
+            }
+        }
+
+        public AlignmentQuaternions PantAlignment
+        {
+            get
+            {
+                if (_pantAlignment == null)
+                {
+                    _pantAlignment = new AlignmentQuaternions();
+                }
+                return _pantAlignment;
+            }
+        }
+
+        public AlignmentState AlignState
+        {
+            get { return _alignState; }
+        }
 
         public DeviceState ShirtState
         {
@@ -137,12 +175,76 @@ namespace Enflux.SDK.Core
             }
         }
 
+        protected void RaiseAlignmentStateEvent(AlignmentState state)
+        {
+            var handler = AlignmentStateChanged;
+            if(handler != null)
+            {
+                handler(state);
+            }
+        }
+
+        protected void RaiseAlignmentProgressEvent(float progress)
+        {
+            var handler = AlignmentProgressChanged;
+            if(handler != null)
+            {
+                handler(progress);
+            }
+        }
+
+        public void SetAlignmentProgress(float progress)
+        {            
+            RaiseAlignmentProgressEvent(progress);
+        }
+
+        public void SetUpperAlignment(AlignmentQuaternions align)
+        {           
+            _shirtAlignment = align;
+        }
+
+        public void SetLowerAlignment(AlignmentQuaternions align)
+        {
+            if (_alignState == AlignmentState.InProgress)
+            {
+                _pantAlignment = align;
+            }
+        }
+
+        public void SetAlignmentCompleted(AlignmentState state)
+        {
+            _suitAlign = null;
+            _alignState = AlignmentState.Aligned;
+            RaiseAlignmentStateEvent(_alignState);
+        }
+
+        public void AlignSensorsToUser()
+        {
+            if (_suitAlign == null)
+            {
+                _suitAlign = new SuitAlignment(this);
+                _alignState = AlignmentState.InProgress;
+                _suitAlign.InitiateAlignment();
+            }
+            else
+            {
+                // fire off some sort of event
+                RaiseAlignmentStateEvent(AlignmentState.InProgress);
+            }
+        }
+
         /// <summary>
         /// Sets ShirtBaseOrientation to the current orientation of the shirt's chest module.
         /// </summary>
         public void ResetShirtBaseOrientation()
         {
             ShirtBaseOrientation = AbsoluteAngles.Chest;
+
+            if (_alignState == AlignmentState.Unaligned)
+            {
+                _shirtAlignment = new SuitAlignment().
+                    SetUpperInitialAlignment(ShirtBaseOrientation);
+            }
         }
 
         /// <summary>
@@ -151,6 +253,12 @@ namespace Enflux.SDK.Core
         public void ResetPantsBaseOrientation()
         {
             PantsBaseOrientation = AbsoluteAngles.Waist;
+
+            if (_alignState == AlignmentState.Unaligned)
+            {
+                _pantAlignment = new SuitAlignment().
+                    SetLowerInitialAlignment(PantsBaseOrientation);
+            }
         }
 
         /// <summary>
@@ -159,7 +267,7 @@ namespace Enflux.SDK.Core
         public void ResetFullBodyBaseOrientation()
         {
             ResetShirtBaseOrientation();
-            ResetPantsBaseOrientation();
-        }
+            ResetPantsBaseOrientation();          
+        }       
     }
 }
