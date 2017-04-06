@@ -304,7 +304,7 @@ namespace Enflux.Examples.UI
         private void OnAlignmentProgress(float progress)
         {
             _alignSensorsText.text = string.
-                        Format("Alignment Progress {0:0}...", progress * 100);
+                        Format("Aligning: {0:0}%", progress * 100);
         }
 
         // TODO: Stop if suit disconnects 
