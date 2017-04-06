@@ -36,7 +36,8 @@ namespace Enflux.Examples.UI
         [SerializeField] private float _resetOrientationTime = 4.0f;
         [SerializeField] private float _alignPrepTime = 5.0f;
 
-        private IEnumerator _co_resetTimer;
+        private IEnumerator _co_resetOrientationTimer;
+        private IEnumerator _co_alignmentTimer;
 
 
         public float ResetOrientationTime
@@ -251,12 +252,12 @@ namespace Enflux.Examples.UI
         // TODO: Stop if suit disconnects 
         private void QueueAlignSensors(bool doCountdown = true)
         {
-            if (_co_resetTimer != null)
+            if (_co_alignmentTimer != null)
             {
-                StopCoroutine(_co_resetTimer);
+                StopCoroutine(_co_alignmentTimer);
             }
-            _co_resetTimer = Co_QueueAlignSensors(doCountdown);
-            StartCoroutine(_co_resetTimer);
+            _co_alignmentTimer = Co_QueueAlignSensors(doCountdown);
+            StartCoroutine(_co_alignmentTimer);
         }
 
         // Countdown to give user time to get in initial pose
@@ -275,11 +276,11 @@ namespace Enflux.Examples.UI
                 }
 
                 _enfluxManager.AlignmentStateChanged += OnAlignmentState;
-                _enfluxManager.AlignmentProgressUpdate += OnAlignmentProgress;
+                _enfluxManager.AlignmentProgressChanged += OnAlignmentProgress;
                 _alignSensorsText.text = "Aligning!";
                 _enfluxManager.AlignSensorsToUser();
-            }            
-            _co_resetTimer = null;
+            }
+            _co_alignmentTimer = null;
         }
 
         private IEnumerator Co_ResetAlignmentText()
@@ -291,13 +292,15 @@ namespace Enflux.Examples.UI
         private void OnAlignmentState(AlignmentState state)
         {
             _enfluxManager.AlignmentStateChanged -= OnAlignmentState;
-            _enfluxManager.AlignmentProgressUpdate -= OnAlignmentProgress;
-            if(state == AlignmentState.ErrorAligning)
+            _enfluxManager.AlignmentProgressChanged -= OnAlignmentProgress;
+            if (state == AlignmentState.ErrorAligning)
+            {
                 _alignSensorsText.text = "Error Occured!";
-
-            if(state == AlignmentState.Aligned)
+            }
+            if (state == AlignmentState.Aligned)
+            {
                 _alignSensorsText.text = "Aligned!";
-
+            }
             StartCoroutine(Co_ResetAlignmentText());
         }
 
@@ -310,12 +313,12 @@ namespace Enflux.Examples.UI
         // TODO: Stop if suit disconnects 
         private void QueueResetOrientation(bool doCountdown = true)
         {
-            if (_co_resetTimer != null)
+            if (_co_resetOrientationTimer != null)
             {
-                StopCoroutine(_co_resetTimer);
+                StopCoroutine(_co_resetOrientationTimer);
             }
-            _co_resetTimer = Co_QueueResetOrientation(doCountdown);
-            StartCoroutine(_co_resetTimer);
+            _co_resetOrientationTimer = Co_QueueResetOrientation(doCountdown);
+            StartCoroutine(_co_resetOrientationTimer);
         }
 
         private IEnumerator Co_QueueResetOrientation(bool doCountdown)
@@ -335,7 +338,7 @@ namespace Enflux.Examples.UI
 
             yield return new WaitForSeconds(1.0f);
             _resetOrientationText.text = "Reset Orientation";
-            _co_resetTimer = null;
+            _co_resetOrientationTimer = null;
         }
 
         private string GetNicifiedString(StateChange<DeviceState> stateChange)

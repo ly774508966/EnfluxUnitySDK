@@ -21,9 +21,9 @@ namespace Enflux.SDK.Core
         private Vector3 _shirtBaseOrientation;
         private Vector3 _pantsBaseOrientation;
 
-        private SuitAlignment _suitAlign = null;
-        private AlignmentQuaternions _shirtAlignment = null;
-        private AlignmentQuaternions _pantAlignment = null;
+        private SuitAlignment _suitAlign;
+        private AlignmentQuaternions _shirtAlignment;
+        private AlignmentQuaternions _pantAlignment;
 
         private readonly HumanoidAngles<Vector3> _absoluteAngles = new HumanoidAngles<Vector3>();
 
@@ -34,13 +34,13 @@ namespace Enflux.SDK.Core
         public event Action<DeviceError> ShirtReceivedError;
         public event Action<DeviceError> PantsReceivedError;
         public event Action<AlignmentState> AlignmentStateChanged;
-        public event Action<float> AlignmentProgressUpdate;
+        public event Action<float> AlignmentProgressChanged;
 
         public AlignmentQuaternions ShirtAlignment
         {
             get
             {
-                if(_shirtAlignment == null)
+                if (_shirtAlignment == null)
                 {
                     _shirtAlignment = new AlignmentQuaternions();
                 }
@@ -52,7 +52,7 @@ namespace Enflux.SDK.Core
         {
             get
             {
-                if(_pantAlignment == null)
+                if (_pantAlignment == null)
                 {
                     _pantAlignment = new AlignmentQuaternions();
                 }
@@ -186,7 +186,7 @@ namespace Enflux.SDK.Core
 
         protected void RaiseAlignmentProgressEvent(float progress)
         {
-            var handler = AlignmentProgressUpdate;
+            var handler = AlignmentProgressChanged;
             if(handler != null)
             {
                 handler(progress);
@@ -205,7 +205,7 @@ namespace Enflux.SDK.Core
 
         public void SetLowerAlignment(AlignmentQuaternions align)
         {
-            if(_alignState == AlignmentState.InProgress)
+            if (_alignState == AlignmentState.InProgress)
             {
                 _pantAlignment = align;
             }
@@ -220,7 +220,7 @@ namespace Enflux.SDK.Core
 
         public void AlignSensorsToUser()
         {
-            if(_suitAlign == null)
+            if (_suitAlign == null)
             {
                 _suitAlign = new SuitAlignment(this);
                 _alignState = AlignmentState.InProgress;
