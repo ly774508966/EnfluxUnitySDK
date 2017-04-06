@@ -34,6 +34,7 @@ namespace Enflux.SDK.Core
         public event Action<DeviceError> ShirtReceivedError;
         public event Action<DeviceError> PantsReceivedError;
         public event Action<AlignmentState> AlignmentStateChanged;
+        public event Action<float> AlignmentProgressUpdate;
 
         public AlignmentQuaternions ShirtAlignment
         {
@@ -183,6 +184,20 @@ namespace Enflux.SDK.Core
             }
         }
 
+        protected void RaiseAlignmentProgressEvent(float progress)
+        {
+            var handler = AlignmentProgressUpdate;
+            if(handler != null)
+            {
+                handler(progress);
+            }
+        }
+
+        public void SetAlignmentProgress(float progress)
+        {            
+            RaiseAlignmentProgressEvent(progress);
+        }
+
         public void SetUpperAlignment(AlignmentQuaternions align)
         {           
             _shirtAlignment = align;
@@ -190,7 +205,10 @@ namespace Enflux.SDK.Core
 
         public void SetLowerAlignment(AlignmentQuaternions align)
         {
-            _pantAlignment = align;
+            if(_alignState == AlignmentState.InProgress)
+            {
+                _pantAlignment = align;
+            }
         }
 
         public void SetAlignmentCompleted(AlignmentState state)
@@ -201,13 +219,14 @@ namespace Enflux.SDK.Core
                 _alignState = AlignmentState.Aligned;
                 RaiseAlignmentStateEvent(_alignState);
             }           
-        }       
+        }
 
         public void AlignSensorsToUser()
         {
             if(_suitAlign == null)
             {
                 _suitAlign = new SuitAlignment(this);
+                _alignState = AlignmentState.InProgress;
                 _suitAlign.InitiateAlignment();
             }
             else

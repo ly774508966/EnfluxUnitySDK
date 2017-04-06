@@ -46,7 +46,7 @@ namespace Enflux.SDK.Core
             }
         }
 
-        public float AlignmentProgress()
+        private float AlignmentProgress()
         {
             var upper = (_upperModule != null) ?
                 _upperModule.PercentDone : 1;
@@ -54,12 +54,27 @@ namespace Enflux.SDK.Core
             var lower = (_lowerModule != null) ?
                 _lowerModule.PercentDone : 1;
 
-            return upper * lower;
-        }       
+            var progress = upper * lower;         
+
+            _absoluteAnglesStream.SetAlignmentProgress(progress);
+
+            return progress;
+        }
+
+        private void CheckProgress()
+        {
+            var progress = AlignmentProgress();
+
+            if (Mathf.Approximately(progress, 1.0f))
+            {
+                // stop collecting data before doing calculations
+                UnsubscribeFromEvents();
+                AlignFullBodySensors();
+            }
+        }
 
         public AlignmentQuaternions SetUpperInitialAlignment(Vector3 angles)
         {
-
             _upperAlignment = new AlignmentQuaternions();
 
             // alignment should not do anything to IMU heading axis                
@@ -80,19 +95,7 @@ namespace Enflux.SDK.Core
                 Quaternion.Inverse(_imuOrientation.BaseOrientation(angles));
 
             return _lowerAlignment;
-        }
-
-        private void CheckProgress()
-        {
-            var progress = AlignmentProgress();
-
-            if(Mathf.Approximately(progress, 1.0f))
-            {
-                // stop collecting data before doing calculations
-                UnsubscribeFromEvents();
-                AlignFullBodySensors();
-            }
-        }
+        }       
         
         private void CompleteSuitAlignment()
         {
@@ -254,7 +257,7 @@ namespace Enflux.SDK.Core
             public Vector4 QuatComponents;
             public int QuatCounter;
 
-            private const int _numSamples = 350;
+            private const float _numSamples = 350;
 
             public float PercentDone
             {

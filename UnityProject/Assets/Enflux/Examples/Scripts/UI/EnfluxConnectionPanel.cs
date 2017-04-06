@@ -275,6 +275,7 @@ namespace Enflux.Examples.UI
                 }
 
                 _enfluxManager.AlignmentStateChanged += OnAlignmentState;
+                _enfluxManager.AlignmentProgressUpdate += OnAlignmentProgress;
                 _alignSensorsText.text = "Aligning!";
                 _enfluxManager.AlignSensorsToUser();
             }            
@@ -285,13 +286,20 @@ namespace Enflux.Examples.UI
         {
             yield return new WaitForSeconds(1.0f);
             _alignSensorsText.text = "Align Sensors";
-        }
+        }       
 
         private void OnAlignmentState(AlignmentState state)
         {
             _enfluxManager.AlignmentStateChanged -= OnAlignmentState;
+            _enfluxManager.AlignmentProgressUpdate -= OnAlignmentProgress;
             _alignSensorsText.text = "Aligned!";
             StartCoroutine(Co_ResetAlignmentText());
+        }
+
+        private void OnAlignmentProgress(float progress)
+        {
+            _alignSensorsText.text = string.
+                        Format("Alignment Progress {0:0}...", progress * 100);
         }
 
         // TODO: Stop if suit disconnects 
