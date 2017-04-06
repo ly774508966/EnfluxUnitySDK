@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections;
 using Enflux.SDK.Alignment;
 using Enflux.SDK.Utils;
 
@@ -18,28 +19,14 @@ namespace Enflux.SDK.Core
         private Module _upperModule = null;
         private Module _lowerModule = null;
 
-        private AlignmentQuaternions<Quaternion> _upperAlignment = null;
-        private AlignmentQuaternions<Quaternion> _lowerAlignment = null;       
+        private AlignmentQuaternions _upperAlignment = null;
+        private AlignmentQuaternions _lowerAlignment = null;
 
-        public event Action<AlignmentQuaternions<Quaternion>> UpperAlignmentCompleted;
-        public event Action<AlignmentQuaternions<Quaternion>> LowerAlignmentCompleted;
+        public SuitAlignment() { /* empty constructor */ }
 
         public SuitAlignment(EnfluxSuitStream s)
         {
             _absoluteAnglesStream = s;
-            _upperAlignment.SetAlignment(
-                Quaternion.identity,
-                Quaternion.identity,
-                Quaternion.identity,
-                Quaternion.identity,
-                Quaternion.identity);
-
-            _lowerAlignment.SetAlignment(
-                Quaternion.identity,
-                Quaternion.identity,
-                Quaternion.identity,
-                Quaternion.identity,
-                Quaternion.identity);
         }
         
         // call to start data polling 
@@ -70,17 +57,37 @@ namespace Enflux.SDK.Core
             return upper * lower;
         }       
 
-        private void SetInitialAlignment(Vector3 upper, Vector3 lower)
+        public AlignmentQuaternions SetUpperInitialAlignment(Vector3 angles)
         {
             // only set if there is not already an alignment
             if (_upperAlignment == null)
             {
-                _upperAlignment = new AlignmentQuaternions<Quaternion>();
+                _upperAlignment = new AlignmentQuaternions();
 
                 // alignment should not do anything to IMU heading axis                
-                upper.z = 0;
-                _upperAlignment.CenterAlignment = _imuOrientation.BaseOrientation(upper);               
+                angles.z = 0;
+                _upperAlignment.CenterAlignment = 
+                    Quaternion.Inverse(_imuOrientation.BaseOrientation(angles));
             }
+
+            return _upperAlignment;
+
+        }
+
+        public AlignmentQuaternions SetLowerInitialAlignment(Vector3 angles)
+        {
+            // only set if there is not already an alignment
+            if (_lowerAlignment == null)
+            {
+                _lowerAlignment = new AlignmentQuaternions();
+
+                // alignment should not do anything to IMU heading axis                
+                angles.z = 0;
+                _lowerAlignment.CenterAlignment = 
+                    Quaternion.Inverse(_imuOrientation.BaseOrientation(angles));
+            }
+
+            return _lowerAlignment;
         }
 
         private void CheckProgress()
@@ -93,24 +100,21 @@ namespace Enflux.SDK.Core
                 UnsubscribeFromEvents();
                 AlignFullBodySensors();
             }
-        }        
-
-        private void RaiseUpperAlignmentCompletedEvent()
+        }
+        
+        private void CompleteSuitAlignment()
         {
-            var handler = UpperAlignmentCompleted;
-            if(handler != null)
-            {
-                handler(_upperAlignment);
-            }
+            _absoluteAnglesStream.SetAlignmentCompleted(AlignmentState.Aligned);
         }
 
-        private void RaiseLowerAlignmentCompletedEvent()
+        private void CompleteUpperAlignment()
         {
-            var handler = LowerAlignmentCompleted;
-            if (handler != null)
-            {
-                handler(_lowerAlignment);
-            }
+            _absoluteAnglesStream.SetUpperAlignment(_lowerAlignment);
+        }
+
+        private void CompleteLowerAlginment()
+        {
+            _absoluteAnglesStream.SetLowerAlignment(_lowerAlignment);
         }
 
         private void OnUpperBodyAnglesChanged(HumanoidAngles<Vector3> absoluteAngles)
@@ -122,11 +126,16 @@ namespace Enflux.SDK.Core
             }
             else
             {
-                _upperModule.Center = _imuOrientation.BaseOrientation(absoluteAngles.Chest);
-                _upperModule.LeftUpper = _imuOrientation.LeftOrientation(absoluteAngles.LeftUpperArm);
-                _upperModule.LeftLower = _imuOrientation.LeftOrientation(absoluteAngles.LeftLowerArm);
-                _upperModule.RightUpper = _imuOrientation.RightOrientation(absoluteAngles.RightUpperArm);
-                _upperModule.RightLower = _imuOrientation.RightOrientation(absoluteAngles.RightLowerArm);
+                _upperModule.Center = 
+                    _imuOrientation.BaseOrientation(absoluteAngles.Chest);
+                _upperModule.LeftUpper = 
+                    _imuOrientation.LeftOrientation(absoluteAngles.LeftUpperArm);
+                _upperModule.LeftLower = 
+                    _imuOrientation.LeftOrientation(absoluteAngles.LeftLowerArm);
+                _upperModule.RightUpper = 
+                    _imuOrientation.RightOrientation(absoluteAngles.RightUpperArm);
+                _upperModule.RightLower = 
+                    _imuOrientation.RightOrientation(absoluteAngles.RightLowerArm);
 
                 _upperModule.InitialCenter = QuaternionUtils.AverageQuaternion(
                     ref _upperModule.QuatComponents,
@@ -147,11 +156,16 @@ namespace Enflux.SDK.Core
             }
             else
             {
-                _lowerModule.Center = _imuOrientation.BaseOrientation(absoluteAngles.Waist);
-                _lowerModule.LeftUpper = _imuOrientation.LeftOrientation(absoluteAngles.LeftUpperLeg);
-                _lowerModule.LeftLower = _imuOrientation.LeftOrientation(absoluteAngles.LeftLowerLeg);
-                _lowerModule.RightUpper = _imuOrientation.RightOrientation(absoluteAngles.RightUpperLeg);
-                _lowerModule.RightLower = _imuOrientation.RightOrientation(absoluteAngles.RightLowerLeg);
+                _lowerModule.Center = 
+                    _imuOrientation.BaseOrientation(absoluteAngles.Waist);
+                _lowerModule.LeftUpper = 
+                    _imuOrientation.LeftOrientation(absoluteAngles.LeftUpperLeg);
+                _lowerModule.LeftLower = 
+                    _imuOrientation.LeftOrientation(absoluteAngles.LeftLowerLeg);
+                _lowerModule.RightUpper = 
+                    _imuOrientation.RightOrientation(absoluteAngles.RightUpperLeg);
+                _lowerModule.RightLower = 
+                    _imuOrientation.RightOrientation(absoluteAngles.RightLowerLeg);
 
                 _lowerModule.InitialCenter = QuaternionUtils.AverageQuaternion(
                     ref _lowerModule.QuatComponents,
@@ -170,8 +184,10 @@ namespace Enflux.SDK.Core
                 return;
             }
             _isSubscribed = true;
-            _absoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged += OnUpperBodyAnglesChanged;
-            _absoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged += OnLowerBodyAnglesChanged;           
+            _absoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged += 
+                OnUpperBodyAnglesChanged;
+            _absoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged += 
+                OnLowerBodyAnglesChanged;           
         }
 
         private void UnsubscribeFromEvents()
@@ -181,14 +197,17 @@ namespace Enflux.SDK.Core
                 return;
             }
             _isSubscribed = false;
-            _absoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged -= OnUpperBodyAnglesChanged;
-            _absoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged -= OnLowerBodyAnglesChanged;
+            _absoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged -= 
+                OnUpperBodyAnglesChanged;
+            _absoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged -= 
+                OnLowerBodyAnglesChanged;
         }        
 
         private void AlignFullBodySensors()
         {
             AlignUpperBodySensors();
             AlignLowerBodySensors();
+            CompleteSuitAlignment();
         }
 
         private void AlignUpperBodySensors()
@@ -203,7 +222,7 @@ namespace Enflux.SDK.Core
                     _upperModule.RightUpper,
                     _upperModule.RightLower);
 
-                RaiseUpperAlignmentCompletedEvent();
+                CompleteUpperAlignment();
             }
 
             // discard module
@@ -222,7 +241,7 @@ namespace Enflux.SDK.Core
                     _lowerModule.RightUpper,
                     _lowerModule.RightLower);
 
-                RaiseLowerAlignmentCompletedEvent();
+                CompleteLowerAlginment();
             }
 
             // discard module

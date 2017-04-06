@@ -34,7 +34,7 @@ namespace Enflux.Examples.UI
         [SerializeField] private Text _alignSensorsText;
 
         [SerializeField] private float _resetOrientationTime = 4.0f;
-        [SerializeField] private float _alignOrientationTime = 10.0f;
+        [SerializeField] private float _alignPrepTime = 5.0f;
 
         private IEnumerator _co_resetTimer;
 
@@ -45,10 +45,10 @@ namespace Enflux.Examples.UI
             set { _resetOrientationTime = Mathf.Max(0f, value); }
         }
 
-        public float AlignOrientationTime
+        public float AlignPrepTime
         {
-            get { return _alignOrientationTime; }
-            set { _alignOrientationTime = Mathf.Max(0f, value); }
+            get { return _alignPrepTime; }
+            set { _alignPrepTime = Mathf.Max(0f, value); }
         }
 
         private void Reset()
@@ -259,41 +259,41 @@ namespace Enflux.Examples.UI
             StartCoroutine(_co_resetTimer);
         }
 
-        // need data to flow to a calculation during this time
+        // Countdown to give user time to get in initial pose
         private IEnumerator Co_QueueAlignSensors(bool doCountdown)
         {
-            var time = AlignOrientationTime;
-            var aligning = false;
-            var dataCollectionTime = 0.5f * AlignOrientationTime;
+            var time = AlignPrepTime;
 
             if (doCountdown)
             {
                 while (time > 0.0f)
                 {
-                    if (time <= dataCollectionTime && !aligning)
-                    {
-                        // Start calculating data
-                        //_enfluxManager.AlignFullBodySensors();
-                        aligning = true;
-                    }
-
-                    if (time <= dataCollectionTime)
-                    {
-                        _alignSensorsText.text = string.Format("Aligning for {0:0.0}...", time);
-                    }
-                    else
-                    {
-                        _alignSensorsText.text = string.Format("Starting alignment in {0:0.0}...", Mathf.Abs(dataCollectionTime - time));
-                    }
-                    yield return null;
+                    _alignSensorsText.text = string.
+                        Format("Starting alignment in {0:0.0}...", Mathf.Abs(time));
                     time -= Time.deltaTime;
+                    yield return null;
                 }
-            }           
-           
-            _alignSensorsText.text = "Aligned!";
+
+                _enfluxManager.AlignmentStateChanged += OnAlignmentState;
+                _alignSensorsText.text = "Aligning!";
+                _enfluxManager.AlignSensorsToUser();
+            }            
+            _co_resetTimer = null;
+        }
+
+        private IEnumerator Co_ResetAlignmentText()
+        {
+
             yield return new WaitForSeconds(1.0f);
             _alignSensorsText.text = "Align Sensors";
-            _co_resetTimer = null;
+
+        }
+
+        private void OnAlignmentState(AlignmentState state)
+        {
+            _enfluxManager.AlignmentStateChanged -= OnAlignmentState;
+            _alignSensorsText.text = "Aligned!";
+            StartCoroutine(Co_ResetAlignmentText());
         }
 
         // TODO: Stop if suit disconnects 

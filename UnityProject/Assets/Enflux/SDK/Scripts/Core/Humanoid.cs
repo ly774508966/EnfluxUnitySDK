@@ -30,7 +30,8 @@ namespace Enflux.SDK.Core
         /// <summary>
         /// The angles of each limb in the humanoid relative to its parent limb.
         /// </summary>
-        public readonly HumanoidAngles<Quaternion> LocalAngles = new HumanoidAngles<Quaternion>();
+        public readonly HumanoidAngles<Quaternion> LocalAngles = 
+            new HumanoidAngles<Quaternion>();
 
         /// <summary>
         /// The source of the absolute angles used to calculate local angles for each limb.
@@ -38,7 +39,8 @@ namespace Enflux.SDK.Core
         public EnfluxSuitStream AbsoluteAnglesStream
         {
             get { return _absoluteAnglesStream; }
-            // HumanoidEditor calls this to correctly handle switching event subscription for the inspector
+            // HumanoidEditor calls this to correctly handle switching event 
+            //subscription for the inspector
             set
             {
                 if (_absoluteAnglesStream == value)
@@ -57,20 +59,49 @@ namespace Enflux.SDK.Core
             }
         }
 
+        private AlignmentQuaternions ShirtAlignment
+        {
+            get
+            {
+                return (AbsoluteAnglesStream != null) ?
+                    AbsoluteAnglesStream.ShirtAlignment : 
+                    new AlignmentQuaternions();
+            }
+        }
+
+        private AlignmentQuaternions PantAlignment
+        {
+            get
+            {
+                return (AbsoluteAnglesStream != null) ?
+                    AbsoluteAnglesStream.PantAlignment : 
+                    new AlignmentQuaternions();
+            }
+        }
+
         private Vector3 ChestBaseOrientation
         {
-            get { return AbsoluteAnglesStream != null ? AbsoluteAnglesStream.ShirtBaseOrientation : Vector3.zero; }
+            get
+            {
+                return (AbsoluteAnglesStream != null) ? 
+                    AbsoluteAnglesStream.ShirtBaseOrientation : Vector3.zero;
+            }
         }
 
         private Vector3 WaistBaseOrientation
         {
-            get { return AbsoluteAnglesStream != null ? AbsoluteAnglesStream.PantsBaseOrientation : Vector3.zero; }
+            get
+            {
+                return (AbsoluteAnglesStream != null) ? 
+                    AbsoluteAnglesStream.PantsBaseOrientation : Vector3.zero;
+            }
         }
 
 
         protected virtual void Reset()
         {
-            AbsoluteAnglesStream = AbsoluteAnglesStream ?? FindObjectOfType<EnfluxManager>();
+            AbsoluteAnglesStream = 
+                AbsoluteAnglesStream ?? FindObjectOfType<EnfluxManager>();
         }
 
         private void Awake()
@@ -103,34 +134,48 @@ namespace Enflux.SDK.Core
             _yawAdjustedChestAngles.z = absoluteAngles.Chest.z - baseChestYaw;
 
             _yawAdjustedLeftUpperArmAngles = absoluteAngles.LeftUpperArm;
-            _yawAdjustedLeftUpperArmAngles.z = absoluteAngles.LeftUpperArm.z - baseChestYaw;
+            _yawAdjustedLeftUpperArmAngles.z = 
+                absoluteAngles.LeftUpperArm.z - baseChestYaw;
 
             _yawAdjustedLeftLowerArmAngles = absoluteAngles.LeftLowerArm;
-            _yawAdjustedLeftLowerArmAngles.z = absoluteAngles.LeftLowerArm.z - baseChestYaw;
+            _yawAdjustedLeftLowerArmAngles.z = 
+                absoluteAngles.LeftLowerArm.z - baseChestYaw;
 
             _yawAdjustedRightUpperArmAngles = absoluteAngles.RightUpperArm;
-            _yawAdjustedRightUpperArmAngles.z = absoluteAngles.RightUpperArm.z - baseChestYaw;
+            _yawAdjustedRightUpperArmAngles.z = 
+                absoluteAngles.RightUpperArm.z - baseChestYaw;
 
             _yawAdjustedRightLowerArmAngles = absoluteAngles.RightLowerArm;
-            _yawAdjustedRightLowerArmAngles.z = absoluteAngles.RightLowerArm.z - baseChestYaw;
+            _yawAdjustedRightLowerArmAngles.z = 
+                absoluteAngles.RightLowerArm.z - baseChestYaw;
 
             // Transform absolute upper body angles into local ones
             var localAngleChest = Quaternion.identity *
-                _imuOrientation.BaseOrientation(_yawAdjustedChestAngles);
+                _imuOrientation.BaseOrientation(_yawAdjustedChestAngles) *
+                ShirtAlignment.CenterAlignment;
 
-            var localAngleLeftUpperArm = Quaternion.Inverse(localAngleChest) *
-                _imuOrientation.LeftOrientation(_yawAdjustedLeftUpperArmAngles);
-
-            var localAngleLeftLowerArm = Quaternion.Inverse(localAngleLeftUpperArm) *
+            var localAngleLeftUpperArm = 
                 Quaternion.Inverse(localAngleChest) *
-                _imuOrientation.LeftOrientation(_yawAdjustedLeftLowerArmAngles);
+                _imuOrientation.LeftOrientation(_yawAdjustedLeftUpperArmAngles) *
+                ShirtAlignment.LeftUpperAlignment;
 
-            var localAngleRightUpperArm = Quaternion.Inverse(localAngleChest) *
-                _imuOrientation.RightOrientation(_yawAdjustedRightUpperArmAngles);
-
-            var localAngleRightLowerArm = Quaternion.Inverse(localAngleRightUpperArm) *
+            var localAngleLeftLowerArm = 
+                Quaternion.Inverse(localAngleLeftUpperArm) *
                 Quaternion.Inverse(localAngleChest) *
-                _imuOrientation.RightOrientation(_yawAdjustedRightLowerArmAngles);
+                _imuOrientation.LeftOrientation(_yawAdjustedLeftLowerArmAngles) *
+                ShirtAlignment.LeftLowerAlignment;
+
+            var localAngleRightUpperArm = 
+                Quaternion.Inverse(localAngleChest) *
+                _imuOrientation.RightOrientation(
+                    _yawAdjustedRightUpperArmAngles) *
+                ShirtAlignment.RightUpperAlignment;
+
+            var localAngleRightLowerArm = 
+                Quaternion.Inverse(localAngleRightUpperArm) *
+                Quaternion.Inverse(localAngleChest) *
+                _imuOrientation.RightOrientation(_yawAdjustedRightLowerArmAngles) *
+                ShirtAlignment.RightLowerAlignment;
 
             LocalAngles.SetUpperBodyAngles(
                 localAngleChest,
@@ -141,7 +186,8 @@ namespace Enflux.SDK.Core
 
         }
 
-        private void OnLowerBodyAnglesChanged(HumanoidAngles<Vector3> absoluteAngles)
+        private void OnLowerBodyAnglesChanged(
+            HumanoidAngles<Vector3> absoluteAngles)
         {
             if (!isActiveAndEnabled)
             {
@@ -154,34 +200,47 @@ namespace Enflux.SDK.Core
             _yawAdjustedWaistAngles.z = absoluteAngles.Waist.z - baseWaistYaw;
 
             _yawAdjustedLeftUpperLegAngles = absoluteAngles.LeftUpperLeg;
-            _yawAdjustedLeftUpperLegAngles.z = absoluteAngles.LeftUpperLeg.z - baseWaistYaw;
+            _yawAdjustedLeftUpperLegAngles.z = 
+                absoluteAngles.LeftUpperLeg.z - baseWaistYaw;
 
             _yawAdjustedLeftLowerLegAngles = absoluteAngles.LeftLowerLeg;
-            _yawAdjustedLeftLowerLegAngles.z = absoluteAngles.LeftLowerLeg.z - baseWaistYaw;
+            _yawAdjustedLeftLowerLegAngles.z = 
+                absoluteAngles.LeftLowerLeg.z - baseWaistYaw;
 
             _yawAdjustedRightUpperLegAngles = absoluteAngles.RightUpperLeg;
-            _yawAdjustedRightUpperLegAngles.z = absoluteAngles.RightUpperLeg.z - baseWaistYaw;
+            _yawAdjustedRightUpperLegAngles.z = 
+                absoluteAngles.RightUpperLeg.z - baseWaistYaw;
 
             _yawAdjustedRightLowerLegAngles = absoluteAngles.RightLowerLeg;
-            _yawAdjustedRightLowerLegAngles.z = absoluteAngles.RightLowerLeg.z - baseWaistYaw;
+            _yawAdjustedRightLowerLegAngles.z = 
+                absoluteAngles.RightLowerLeg.z - baseWaistYaw;
 
             // Transform absolute lower body angles into relative ones
             var localAngleWaist = Quaternion.identity *
-                _imuOrientation.BaseOrientation(_yawAdjustedWaistAngles);
+                _imuOrientation.BaseOrientation(_yawAdjustedWaistAngles) *
+                PantAlignment.CenterAlignment;
 
-            var localAngleLeftUpperLeg = Quaternion.Inverse(localAngleWaist) *
-                _imuOrientation.LeftOrientation(_yawAdjustedLeftUpperLegAngles);
-
-            var localAngleLeftLowerLeg = Quaternion.Inverse(localAngleLeftUpperLeg) *
+            var localAngleLeftUpperLeg = 
                 Quaternion.Inverse(localAngleWaist) *
-                _imuOrientation.LeftOrientation(_yawAdjustedLeftLowerLegAngles);
+                _imuOrientation.LeftOrientation(_yawAdjustedLeftUpperLegAngles) *
+                PantAlignment.LeftUpperAlignment;
 
-            var localAngleRightUpperLeg = Quaternion.Inverse(localAngleWaist) *
-                _imuOrientation.RightOrientation(_yawAdjustedRightUpperLegAngles);
-
-            var localAngleRightLowerLeg = Quaternion.Inverse(localAngleRightUpperLeg) *
+            var localAngleLeftLowerLeg = 
+                Quaternion.Inverse(localAngleLeftUpperLeg) *
                 Quaternion.Inverse(localAngleWaist) *
-                _imuOrientation.RightOrientation(_yawAdjustedRightLowerLegAngles);
+                _imuOrientation.LeftOrientation(_yawAdjustedLeftLowerLegAngles) *
+                PantAlignment.LeftLowerAlignment;
+
+            var localAngleRightUpperLeg = 
+                Quaternion.Inverse(localAngleWaist) *
+                _imuOrientation.RightOrientation(_yawAdjustedRightUpperLegAngles) *
+                PantAlignment.RightUpperAlignment;
+
+            var localAngleRightLowerLeg = 
+                Quaternion.Inverse(localAngleRightUpperLeg) *
+                Quaternion.Inverse(localAngleWaist) *
+                _imuOrientation.RightOrientation(_yawAdjustedRightLowerLegAngles) *
+                PantAlignment.RightLowerAlignment;
 
             LocalAngles.SetLowerBodyAngles(
                 localAngleWaist,
@@ -198,8 +257,10 @@ namespace Enflux.SDK.Core
                 return;
             }
             _isSubscribed = true;
-            AbsoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged += OnUpperBodyAnglesChanged;
-            AbsoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged += OnLowerBodyAnglesChanged;
+            AbsoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged += 
+                OnUpperBodyAnglesChanged;
+            AbsoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged += 
+                OnLowerBodyAnglesChanged;
         }
 
         private void UnsubscribeFromEvents()
@@ -209,8 +270,10 @@ namespace Enflux.SDK.Core
                 return;
             }
             _isSubscribed = false;
-            AbsoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged -= OnUpperBodyAnglesChanged;
-            AbsoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged -= OnLowerBodyAnglesChanged;
+            AbsoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged -= 
+                OnUpperBodyAnglesChanged;
+            AbsoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged -= 
+                OnLowerBodyAnglesChanged;
         }
     }
 }
