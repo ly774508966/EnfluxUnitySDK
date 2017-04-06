@@ -49,10 +49,13 @@ namespace Enflux.SDK.Core
         private float AlignmentProgress()
         {
             var upper = (_upperModule != null) ?
-                _upperModule.PercentDone : 1;
+                CheckUpperProgress() : 1;
 
             var lower = (_lowerModule != null) ?
-                _lowerModule.PercentDone : 1;
+                CheckLowerProgress() : 1;
+
+            Debug.Log("UPPER: " + upper);
+            Debug.Log("LOWER: " + lower);
 
             var progress = upper * lower;         
 
@@ -61,12 +64,40 @@ namespace Enflux.SDK.Core
             return progress;
         }
 
+        private float CheckLowerProgress()
+        {
+            var lower = _lowerModule.PercentDone;
+
+            if (Mathf.Approximately(lower, 1.0f))
+            {
+                UnSubscribeLower();
+            }
+
+            return lower;
+        }
+
+        private float CheckUpperProgress()
+        {
+            var upper = _upperModule.PercentDone;
+
+            if (Mathf.Approximately(upper, 1.0f))
+            {
+                UnSubscribeUpper();
+            }
+
+            return upper;
+        }
+
         private void CheckProgress()
         {
             var progress = AlignmentProgress();
 
+            Debug.Log("Progress: " + progress);
+
             if (Mathf.Approximately(progress, 1.0f))
             {
+                Debug.Log("DONE!");
+
                 // stop collecting data before doing calculations
                 UnsubscribeFromEvents();
                 AlignFullBodySensors();
@@ -188,16 +219,20 @@ namespace Enflux.SDK.Core
 
         private void UnsubscribeFromEvents()
         {
-            if (!Application.isPlaying)
-            {
-                return;
-            }
-            _isSubscribed = false;
-            _absoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged -= 
+            _isSubscribed = false;           
+        }
+        
+        private void UnSubscribeUpper()
+        {
+            _absoluteAnglesStream.AbsoluteAngles.UpperBodyAnglesChanged -=
                 OnUpperBodyAnglesChanged;
-            _absoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged -= 
+        }
+
+        private void UnSubscribeLower()
+        {
+            _absoluteAnglesStream.AbsoluteAngles.LowerBodyAnglesChanged -=
                 OnLowerBodyAnglesChanged;
-        }        
+        }
 
         private void AlignFullBodySensors()
         {

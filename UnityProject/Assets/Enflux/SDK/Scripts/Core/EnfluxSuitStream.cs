@@ -257,11 +257,11 @@ namespace Enflux.SDK.Core
         {
             PantsBaseOrientation = AbsoluteAngles.Waist;
 
-            if (_alignState == AlignmentState.Unaligned)
-            {
-                _pantAlignment = new SuitAlignment().
-                    SetLowerInitialAlignment(PantsBaseOrientation);
-            }
+            //if (_alignState == AlignmentState.Unaligned)
+            //{
+            //    _pantAlignment = new SuitAlignment().
+            //        SetLowerInitialAlignment(PantsBaseOrientation);
+            //}
         }
 
         /// <summary>
