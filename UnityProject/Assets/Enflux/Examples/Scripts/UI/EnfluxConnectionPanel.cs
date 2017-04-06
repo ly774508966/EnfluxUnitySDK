@@ -292,7 +292,12 @@ namespace Enflux.Examples.UI
         {
             _enfluxManager.AlignmentStateChanged -= OnAlignmentState;
             _enfluxManager.AlignmentProgressUpdate -= OnAlignmentProgress;
-            _alignSensorsText.text = "Aligned!";
+            if(state == AlignmentState.ErrorAligning)
+                _alignSensorsText.text = "Error Occured!";
+
+            if(state == AlignmentState.Aligned)
+                _alignSensorsText.text = "Aligned!";
+
             StartCoroutine(Co_ResetAlignmentText());
         }
 

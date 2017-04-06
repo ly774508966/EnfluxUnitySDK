@@ -11,7 +11,7 @@ namespace Enflux.SDK.Core
         private EnfluxSuitStream _absoluteAnglesStream;        
 
         private bool _isSubscribed = false;
-        private bool _isAligned = false;      
+        private bool _isAligned = false;
         
         private readonly SensorAlignment _sensorAlignment = new SensorAlignment();
         private readonly ImuOrientations _imuOrientation = new ImuOrientations();                
@@ -54,9 +54,6 @@ namespace Enflux.SDK.Core
             var lower = (_lowerModule != null) ?
                 CheckLowerProgress() : 1;
 
-            Debug.Log("UPPER: " + upper);
-            Debug.Log("LOWER: " + lower);
-
             var progress = upper * lower;         
 
             _absoluteAnglesStream.SetAlignmentProgress(progress);
@@ -90,14 +87,10 @@ namespace Enflux.SDK.Core
 
         private void CheckProgress()
         {
-            var progress = AlignmentProgress();
-
-            Debug.Log("Progress: " + progress);
+            var progress = AlignmentProgress();            
 
             if (Mathf.Approximately(progress, 1.0f))
-            {
-                Debug.Log("DONE!");
-
+            {             
                 // stop collecting data before doing calculations
                 UnsubscribeFromEvents();
                 AlignFullBodySensors();
@@ -130,8 +123,16 @@ namespace Enflux.SDK.Core
         
         private void CompleteSuitAlignment()
         {
+            var state = AlignmentState.Aligned;
             UnsubscribeFromEvents();
-            _absoluteAnglesStream.SetAlignmentCompleted(AlignmentState.Aligned);
+            if(_lowerAlignment != null && _lowerAlignment.Error < 0)
+                state = AlignmentState.ErrorAligning;
+
+
+            if (_upperAlignment != null && _upperAlignment.Error < 0)            
+                state = AlignmentState.ErrorAligning;
+            
+            _absoluteAnglesStream.SetAlignmentCompleted(state);
         }
 
         private void CompleteUpperAlignment()
@@ -140,7 +141,7 @@ namespace Enflux.SDK.Core
         }
 
         private void CompleteLowerAlginment()
-        {
+        {         
             _absoluteAnglesStream.SetLowerAlignment(_lowerAlignment);
         }
 
@@ -262,7 +263,7 @@ namespace Enflux.SDK.Core
 
         private void AlignLowerBodySensors()
         {
-            if(_upperModule != null)
+            if(_lowerModule != null)
             {
                 _lowerAlignment = _sensorAlignment.LowerBodyAlignment(
                     _lowerModule.InitialCenter,

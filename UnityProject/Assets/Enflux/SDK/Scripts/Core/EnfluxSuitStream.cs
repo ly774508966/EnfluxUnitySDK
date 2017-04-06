@@ -213,12 +213,9 @@ namespace Enflux.SDK.Core
 
         public void SetAlignmentCompleted(AlignmentState state)
         {
-            if(state == AlignmentState.Aligned)
-            {
-                _suitAlign = null;
-                _alignState = AlignmentState.Aligned;
-                RaiseAlignmentStateEvent(_alignState);
-            }           
+            _suitAlign = null;
+            _alignState = AlignmentState.Aligned;
+            RaiseAlignmentStateEvent(_alignState);
         }
 
         public void AlignSensorsToUser()
@@ -257,11 +254,11 @@ namespace Enflux.SDK.Core
         {
             PantsBaseOrientation = AbsoluteAngles.Waist;
 
-            //if (_alignState == AlignmentState.Unaligned)
-            //{
-            //    _pantAlignment = new SuitAlignment().
-            //        SetLowerInitialAlignment(PantsBaseOrientation);
-            //}
+            if (_alignState == AlignmentState.Unaligned)
+            {
+                _pantAlignment = new SuitAlignment().
+                    SetLowerInitialAlignment(PantsBaseOrientation);
+            }
         }
 
         /// <summary>
