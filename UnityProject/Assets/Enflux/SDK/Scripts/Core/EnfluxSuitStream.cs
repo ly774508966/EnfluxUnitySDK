@@ -223,6 +223,7 @@ namespace Enflux.SDK.Core
         public void ResetShirtBaseOrientation()
         {
             ShirtBaseOrientation = AbsoluteAngles.Chest;
+
             if (_alignState == AlignmentState.Unaligned)
             {
                 _shirtAlignment = new SuitAlignment().

@@ -19,8 +19,8 @@ namespace Enflux.SDK.Core
         private Module _upperModule = null;
         private Module _lowerModule = null;
 
-        private AlignmentQuaternions _upperAlignment = null;
-        private AlignmentQuaternions _lowerAlignment = null;
+        private AlignmentQuaternions _upperAlignment;
+        private AlignmentQuaternions _lowerAlignment;
 
         public SuitAlignment() { /* empty constructor */ }
 
@@ -59,33 +59,25 @@ namespace Enflux.SDK.Core
 
         public AlignmentQuaternions SetUpperInitialAlignment(Vector3 angles)
         {
-            // only set if there is not already an alignment
-            if (_upperAlignment == null)
-            {
-                _upperAlignment = new AlignmentQuaternions();
 
-                // alignment should not do anything to IMU heading axis                
-                angles.z = 0;
-                _upperAlignment.CenterAlignment = 
-                    Quaternion.Inverse(_imuOrientation.BaseOrientation(angles));
-            }
+            _upperAlignment = new AlignmentQuaternions();
+
+            // alignment should not do anything to IMU heading axis                
+            angles.z = 0;
+            _upperAlignment.CenterAlignment =
+                Quaternion.Inverse(_imuOrientation.BaseOrientation(angles));
 
             return _upperAlignment;
-
         }
 
         public AlignmentQuaternions SetLowerInitialAlignment(Vector3 angles)
         {
-            // only set if there is not already an alignment
-            if (_lowerAlignment == null)
-            {
-                _lowerAlignment = new AlignmentQuaternions();
+            _lowerAlignment = new AlignmentQuaternions();
 
-                // alignment should not do anything to IMU heading axis                
-                angles.z = 0;
-                _lowerAlignment.CenterAlignment = 
-                    Quaternion.Inverse(_imuOrientation.BaseOrientation(angles));
-            }
+            // alignment should not do anything to IMU heading axis                
+            angles.z = 0;
+            _lowerAlignment.CenterAlignment =
+                Quaternion.Inverse(_imuOrientation.BaseOrientation(angles));
 
             return _lowerAlignment;
         }
@@ -104,12 +96,13 @@ namespace Enflux.SDK.Core
         
         private void CompleteSuitAlignment()
         {
+            UnsubscribeFromEvents();
             _absoluteAnglesStream.SetAlignmentCompleted(AlignmentState.Aligned);
         }
 
         private void CompleteUpperAlignment()
         {
-            _absoluteAnglesStream.SetUpperAlignment(_lowerAlignment);
+            _absoluteAnglesStream.SetUpperAlignment(_upperAlignment);
         }
 
         private void CompleteLowerAlginment()
@@ -120,7 +113,7 @@ namespace Enflux.SDK.Core
         private void OnUpperBodyAnglesChanged(HumanoidAngles<Vector3> absoluteAngles)
         {
             if(_upperModule == null)
-            {                
+            {
                 _upperModule = new Module();
                 _upperModule.FirstQuat = _imuOrientation.BaseOrientation(absoluteAngles.Chest);
             }

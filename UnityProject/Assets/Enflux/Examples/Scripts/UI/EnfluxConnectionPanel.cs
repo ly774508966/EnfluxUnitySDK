@@ -283,10 +283,8 @@ namespace Enflux.Examples.UI
 
         private IEnumerator Co_ResetAlignmentText()
         {
-
             yield return new WaitForSeconds(1.0f);
             _alignSensorsText.text = "Align Sensors";
-
         }
 
         private void OnAlignmentState(AlignmentState state)
