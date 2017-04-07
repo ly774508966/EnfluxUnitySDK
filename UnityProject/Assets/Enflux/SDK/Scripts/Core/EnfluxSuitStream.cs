@@ -121,6 +121,11 @@ namespace Enflux.SDK.Core
             set
             {
                 _shirtBaseOrientation = value;
+                if (_alignState == AlignmentState.Unaligned || _shirtAlignment == null)
+                {
+                    _shirtAlignment = new SuitAlignment().
+                        SetUpperInitialAlignment(ShirtBaseOrientation);
+                }
                 RaiseShirtNotificationEvent(DeviceNotification.ResetOrientation);
             }
         }
@@ -135,6 +140,11 @@ namespace Enflux.SDK.Core
             set
             {
                 _pantsBaseOrientation = value;
+                if (_alignState == AlignmentState.Unaligned || _pantAlignment == null)
+                {
+                    _pantAlignment = new SuitAlignment().
+                        SetLowerInitialAlignment(PantsBaseOrientation);
+                }
                 RaisePantsNotificationEvent(DeviceNotification.ResetOrientation);
             }
         }
@@ -239,12 +249,6 @@ namespace Enflux.SDK.Core
         public void ResetShirtBaseOrientation()
         {
             ShirtBaseOrientation = AbsoluteAngles.Chest;
-
-            if (_alignState == AlignmentState.Unaligned)
-            {
-                _shirtAlignment = new SuitAlignment().
-                    SetUpperInitialAlignment(ShirtBaseOrientation);
-            }
         }
 
         /// <summary>
@@ -253,12 +257,6 @@ namespace Enflux.SDK.Core
         public void ResetPantsBaseOrientation()
         {
             PantsBaseOrientation = AbsoluteAngles.Waist;
-
-            if (_alignState == AlignmentState.Unaligned)
-            {
-                _pantAlignment = new SuitAlignment().
-                    SetLowerInitialAlignment(PantsBaseOrientation);
-            }
         }
 
         /// <summary>
