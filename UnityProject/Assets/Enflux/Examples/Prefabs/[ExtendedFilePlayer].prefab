@@ -54,6 +54,7 @@ MonoBehaviour:
   _shirtState: 0
   _pantsState: 0
   _state: 1
+  _currentTimeMs: 0
   _speed: 1
   _isLooping: 0
   _autoplayOnLoad: 1
