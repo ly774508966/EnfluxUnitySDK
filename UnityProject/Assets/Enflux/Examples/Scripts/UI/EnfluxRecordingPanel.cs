@@ -57,7 +57,7 @@ namespace Enflux.Examples.UI
         {
             yield return null;
             _filenameInputField.text = _fileRecorder.Filename;
-            _filePlayer.Filename = _fileRecorder.Filename;
+            _filePlayer.Load(_fileRecorder.Filename);
         }
 
         private void Update()
@@ -90,12 +90,12 @@ namespace Enflux.Examples.UI
 
         private void StartPlaybackButtonOnClick()
         {
-            _filePlayer.IsPlaying = true;
+            _filePlayer.Play();
         }
 
         private void StopPlaybackButtonOnClick()
         {
-            _filePlayer.IsPlaying = false;
+            _filePlayer.Stop();
         }
 
         private void FilenameInputFieldOnEndEdit(string filename)
@@ -106,7 +106,7 @@ namespace Enflux.Examples.UI
             }
             if (_filePlayer != null)
             {
-                _filePlayer.Filename = filename;
+                _filePlayer.Load(filename);
             }
         }
     }

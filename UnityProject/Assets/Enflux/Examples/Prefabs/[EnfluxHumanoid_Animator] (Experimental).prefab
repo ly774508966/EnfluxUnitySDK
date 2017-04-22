@@ -2487,13 +2487,13 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000011507005898}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c0869ae8f31869d4ebfa079a1917a4ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _humanoid: {fileID: 114000012621598114}
-  _animator: {fileID: 95000012414888880}
+  _humanoid: {fileID: 0}
+  _animator: {fileID: 54030624}
 --- !u!137 &137000013800605430
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1
