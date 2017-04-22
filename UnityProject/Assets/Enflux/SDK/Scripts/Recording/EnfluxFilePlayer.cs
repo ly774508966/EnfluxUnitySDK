@@ -91,12 +91,13 @@ namespace Enflux.SDK.Recording
                 switch (_state)
                 {
                     case PlaybackState.Unloaded:
-                        Filename = "";
-                        break;
-
                     case PlaybackState.Paused:
                     case PlaybackState.Stopped:
                     case PlaybackState.Error:
+                        if (_state == PlaybackState.Unloaded)
+                        {
+                            Filename = "";
+                        }
                         if (_state == PlaybackState.Stopped)
                         {
                             CurrentTimeMs = 0;
