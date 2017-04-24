@@ -382,7 +382,7 @@ namespace Enflux.SDK.Recording
             while (CurrentTimeMs <= DurationMs)
             {
                 // Seek next shirt frame if necessary
-                if (CurrentTimeMs > _nextShirtFrame.TimeMs)
+                if (_header.NumShirtFrames > 0 && CurrentTimeMs > _nextShirtFrame.TimeMs)
                 {
                     _currentShirtFrame = _nextShirtFrame;
                     var seekedShirtFrame = SeekNextFrame(_dataStream, _nextShirtFramePosition, CurrentTimeMs, EnfluxDevice.Shirt, ref _nextShirtFrame, ref _nextShirtFramePosition);
@@ -393,7 +393,7 @@ namespace Enflux.SDK.Recording
                 }
 
                 // Seek next pants frame if necessary
-                if (CurrentTimeMs > _nextPantsFrame.TimeMs)
+                if (_header.NumPantsFrames > 0 && CurrentTimeMs > _nextPantsFrame.TimeMs)
                 {
                     _currentPantsFrame = _nextPantsFrame;
                     var seekedPantsFrame = SeekNextFrame(_dataStream, _nextPantsFramePosition, CurrentTimeMs, EnfluxDevice.Pants, ref _nextPantsFrame, ref _nextPantsFramePosition);
@@ -524,12 +524,11 @@ namespace Enflux.SDK.Recording
         /// <summary>
         /// Force both shirt and pants orientations to the frames at the specified time.
         /// </summary>
-        /// <param name="timeMs">Time in millseconds to set frames too.</param>
+        /// <param name="timeMs">Time in millseconds to set frames to.</param>
         private void SetFramesToTime(uint timeMs)
         {
             SeekNextFrame(_dataStream, _headerEndPosition, timeMs, EnfluxDevice.Shirt, ref _currentShirtFrame, ref _nextShirtFramePosition);
             _nextShirtFrame = _currentShirtFrame;
-
             AbsoluteAngles.SetUpperBodyAngles(
                 _currentShirtFrame.Center,
                 _currentShirtFrame.LeftUpper,

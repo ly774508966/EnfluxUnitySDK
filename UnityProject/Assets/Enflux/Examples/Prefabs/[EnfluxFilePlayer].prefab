@@ -21,7 +21,7 @@ GameObject:
   - 4: {fileID: 4000013420616146}
   - 114: {fileID: 114000011873395090}
   m_Layer: 0
-  m_Name: '[ExtendedFilePlayer]'
+  m_Name: '[EnfluxFilePlayer]'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -53,7 +53,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _shirtState: 0
   _pantsState: 0
-  _state: 1
+  _state: 0
   _currentTimeMs: 0
   _speed: 1
   _isLooping: 0

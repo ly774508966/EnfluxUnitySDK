@@ -208,8 +208,6 @@ namespace Enflux.Examples.UI
 
         private void OpenFileButtonOnClick()
         {
-
-
             var extensionFilters = new[] {new ExtensionFilter("Enflux Animation", "enfl"), new ExtensionFilter("All Files", "*")};
             var filename = FileDialog.OpenFilePanel("Open .enfl File", _previousDirectory, extensionFilters).FirstOrDefault();
 

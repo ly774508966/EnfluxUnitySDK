@@ -41,6 +41,7 @@ namespace Enflux.SDK.Editor.Recording
         {
             if (_filePlayer.IsLoaded)
             {
+                _filenameToLoad = _filePlayer.Filename;
                 _durationTimeSpan = TimeSpan.FromMilliseconds(_filePlayer.DurationMs);
                 _durationText = string.Format("{0:00}:{1:00}.{2:000}",
                     _durationTimeSpan.Minutes, _durationTimeSpan.Seconds, _durationTimeSpan.Milliseconds);
@@ -194,6 +195,13 @@ namespace Enflux.SDK.Editor.Recording
                     }
                 }
                 EnfluxEditorUtils.SetDefaultTheme();
+                GUILayout.EndHorizontal();
+            }
+            // Playmode disclaimer
+            if (!Application.isPlaying)
+            {
+                GUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Playback is only available in editor play mode.");
                 GUILayout.EndHorizontal();
             }
             EditorGUILayout.EndVertical();
