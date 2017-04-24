@@ -23,12 +23,14 @@ namespace Enflux.SDK.Editor.Core
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
+            var previousAbsoluteAnglesStream = _humanoid.AbsoluteAnglesStream;
             EditorGUILayout.PropertyField(_absoluteAnglesStreamProperty);
-            if (_humanoid.AbsoluteAnglesStream != _absoluteAnglesStreamProperty.objectReferenceValue)
-            {
-                _humanoid.AbsoluteAnglesStream = (EnfluxSuitStream) _absoluteAnglesStreamProperty.objectReferenceValue;
-            }
+      
             serializedObject.ApplyModifiedProperties();
+            if (previousAbsoluteAnglesStream != _absoluteAnglesStreamProperty.objectReferenceValue)
+            {
+                _humanoid.AbsoluteAnglesStream = (EnfluxSuitStream)_absoluteAnglesStreamProperty.objectReferenceValue;
+            }
         }
     }
 }
